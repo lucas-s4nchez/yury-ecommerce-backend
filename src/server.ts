@@ -1,6 +1,7 @@
 import express, { json, urlencoded } from "express";
 import morgan from "morgan";
 import cors from "cors";
+import { UserRoute } from "./router/user.routes";
 
 class ServerBootstrap {
   public app: express.Application = express();
@@ -8,6 +9,8 @@ class ServerBootstrap {
 
   constructor() {
     this.middlewares();
+
+    this.app.use("/api", this.routes());
     this.listen();
   }
 
@@ -16,6 +19,10 @@ class ServerBootstrap {
     this.app.use(urlencoded({ extended: true }));
     this.app.use(cors());
     this.app.use(morgan("dev"));
+  }
+
+  routes(): Array<express.Router> {
+    return [new UserRoute().router];
   }
 
   public listen() {
