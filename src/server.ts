@@ -2,12 +2,14 @@ import express, { json, urlencoded } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import { UserRoute } from "./router/user.routes";
+import { ConfigServer } from "./config/config";
 
-class ServerBootstrap {
+class ServerBootstrap extends ConfigServer {
   public app: express.Application = express();
-  private port: number = 8080;
+  private port: number = this.getNumberEnv("PORT");
 
   constructor() {
+    super();
     this.middlewares();
 
     this.app.use("/api", this.routes());
