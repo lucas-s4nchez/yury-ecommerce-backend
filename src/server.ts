@@ -1,7 +1,9 @@
 import express, { json, urlencoded } from "express";
 import morgan from "morgan";
 import cors from "cors";
-import { UserRoute } from "./router/user.routes";
+import "reflect-metadata";
+import { DataSource } from "typeorm";
+import { UserRoute } from "./users/user.routes";
 import { ConfigServer } from "./config/config";
 
 class ServerBootstrap extends ConfigServer {
@@ -11,7 +13,7 @@ class ServerBootstrap extends ConfigServer {
   constructor() {
     super();
     this.middlewares();
-
+    this.dbConnection();
     this.app.use("/api", this.routes());
     this.listen();
   }
@@ -25,6 +27,15 @@ class ServerBootstrap extends ConfigServer {
 
   routes(): Array<express.Router> {
     return [new UserRoute().router];
+  }
+
+  async dbConnection(): Promise<void> {
+    try {
+      await new DataSource(this.typeORMConfig).initialize();
+      console.log(`🚀  Database Connected`);
+    } catch (error) {
+      console.log(`🚀 Database Connection Error: ${error}`);
+    }
   }
 
   public listen() {
