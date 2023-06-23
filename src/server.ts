@@ -13,7 +13,7 @@ class ServerBootstrap extends ConfigServer {
   constructor() {
     super();
     this.middlewares();
-    this.dbConnection();
+    // this.dbConnection();
     this.app.use("/api", this.routes());
     this.listen();
   }
@@ -29,14 +29,14 @@ class ServerBootstrap extends ConfigServer {
     return [new UserRoute().router];
   }
 
-  async dbConnection(): Promise<void> {
-    try {
-      await new DataSource(this.typeORMConfig).initialize();
-      console.log(`🚀  Database Connected`);
-    } catch (error) {
-      console.log(`🚀 Database Connection Error: ${error}`);
-    }
-  }
+  // async dbConnection(): Promise<void> {
+  //   try {
+  //     await new DataSource(this.typeORMConfig).initialize();
+  //     console.log(`🚀  Database Connected`);
+  //   } catch (error) {
+  //     console.log(`🚀 Database Connection Error: ${error}`);
+  //   }
+  // }
 
   public listen() {
     this.app.listen(this.port, () => {
