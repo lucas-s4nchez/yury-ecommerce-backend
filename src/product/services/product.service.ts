@@ -8,11 +8,18 @@ export class ProductService extends BaseService<ProductEntity> {
     super(ProductEntity);
   }
 
-  async findAllProducts(): Promise<ProductEntity[]> {
-    return (await this.execRepository).find();
+  async findAllProducts(): Promise<[ProductEntity[], number]> {
+    return (await this.execRepository)
+      .createQueryBuilder("products")
+      .leftJoinAndSelect("products.category", "category")
+      .getManyAndCount();
   }
   async findProductById(id: string): Promise<ProductEntity | null> {
-    return (await this.execRepository).findOneBy({ id });
+    return (await this.execRepository)
+      .createQueryBuilder("products")
+      .leftJoinAndSelect("products.category", "category")
+      .where({ id })
+      .getOne();
   }
   async createProduct(body: ProductDTO): Promise<ProductEntity> {
     return (await this.execRepository).save(body);

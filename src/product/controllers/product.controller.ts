@@ -12,10 +12,14 @@ export class ProductController {
   async getProducts(req: Request, res: Response) {
     try {
       const data = await this.productService.findAllProducts();
-      if (data.length === 0) {
+
+      if (data[0].length === 0) {
         return this.httpResponse.NotFound(res, "No hay productos");
       }
-      return this.httpResponse.Ok(res, data);
+
+      const [products, count] = data;
+
+      return this.httpResponse.Ok(res, { products, count });
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }
