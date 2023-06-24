@@ -3,6 +3,7 @@ import { Response } from "express";
 export enum HttpStatus {
   OK = 200,
   NOT_FOUND = 404,
+  BAD_REQUEST = 400,
   UNAUTHORIZED = 401,
   FORBIDDEN = 403,
   INTERNAL_SERVER_ERROR = 500,
@@ -21,6 +22,14 @@ export class HttpResponse {
     return res.status(HttpStatus.NOT_FOUND).json({
       status: HttpStatus.NOT_FOUND,
       statusMessage: "Not found",
+      error: data,
+    });
+  }
+
+  BadRequest(res: Response, data?: any): Response {
+    return res.status(HttpStatus.BAD_REQUEST).json({
+      status: HttpStatus.BAD_REQUEST,
+      statusMessage: "Bad request",
       error: data,
     });
   }

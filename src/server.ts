@@ -14,9 +14,19 @@ class ServerBootstrap extends ConfigServer {
   constructor() {
     super();
     this.middlewares();
-    // this.dbConnection();
+    this.dbConnect();
     this.app.use("/api", this.routes());
     this.listen();
+  }
+
+  async dbConnect(): Promise<DataSource | void> {
+    return this.initConnect
+      .then(() => {
+        console.log("🚀 Success database connection");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   public middlewares() {
@@ -27,7 +37,7 @@ class ServerBootstrap extends ConfigServer {
   }
 
   routes(): Array<express.Router> {
-    return [new UserRoute().router];
+    return [new UserRoute().router, new CategoryRoute().router];
   }
 
   public listen() {
