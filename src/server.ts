@@ -5,6 +5,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { UserRoute } from "./users/user.routes";
 import { ConfigServer } from "./config/config";
+import { CategoryRoute } from "./category/category.routes";
 
 class ServerBootstrap extends ConfigServer {
   public app: express.Application = express();
@@ -28,15 +29,6 @@ class ServerBootstrap extends ConfigServer {
   routes(): Array<express.Router> {
     return [new UserRoute().router];
   }
-
-  // async dbConnection(): Promise<void> {
-  //   try {
-  //     await new DataSource(this.typeORMConfig).initialize();
-  //     console.log(`🚀  Database Connected`);
-  //   } catch (error) {
-  //     console.log(`🚀 Database Connection Error: ${error}`);
-  //   }
-  // }
 
   public listen() {
     this.app.listen(this.port, () => {
