@@ -22,12 +22,6 @@ export class UserEntity extends BaseEntity {
   @Column()
   password!: string;
 
-  @Column()
-  city!: string;
-
-  @Column()
-  province!: string;
-
   @Column({ type: "enum", enum: RoleType, nullable: false })
   role!: RoleType;
 

@@ -6,6 +6,12 @@ import { PurchaseEntity } from "../../purchase/entities/purchase.entity";
 @Entity({ name: "customer" })
 export class CustomerEntity extends BaseEntity {
   @Column()
+  province!: string;
+
+  @Column()
+  city!: string;
+
+  @Column()
   address!: string;
 
   @Column()
