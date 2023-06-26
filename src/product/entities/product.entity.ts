@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { BaseEntity } from "../../config/base.entity";
 import { CategoryEntity } from "../../category/entities/category.entity";
-import { PurchaseProductEntity } from "../../order/entities/purchases-products.entity";
+import { OrderItemEntity } from "../../order/entities/order-item.entity";
 
 @Entity({ name: "product" })
 export class ProductEntity extends BaseEntity {
@@ -18,9 +18,6 @@ export class ProductEntity extends BaseEntity {
   @JoinColumn({ name: "category_id" })
   category!: CategoryEntity;
 
-  @OneToMany(
-    () => PurchaseProductEntity,
-    (purchaseProduct) => purchaseProduct.product
-  )
-  purchaseProduct!: PurchaseProductEntity[];
+  @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.product)
+  orderItem!: OrderItemEntity[];
 }

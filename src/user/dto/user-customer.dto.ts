@@ -1,8 +1,7 @@
 import { IsNotEmpty } from "class-validator";
 import { BaseDTO } from "../../config/base.dto";
-import { UserEntity } from "../../user/entities/user.entity";
 
-export class CustomerDTO extends BaseDTO {
+export class UserCustomerDTO extends BaseDTO {
   @IsNotEmpty()
   province!: string;
 
@@ -16,5 +15,5 @@ export class CustomerDTO extends BaseDTO {
   dni!: number;
 
   @IsNotEmpty()
-  user!: UserEntity;
+  phone!: number;
 }

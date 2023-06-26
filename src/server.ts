@@ -7,7 +7,6 @@ import { UserRoute } from "./user/user.routes";
 import { ConfigServer } from "./config/config";
 import { CategoryRoute } from "./category/category.routes";
 import { ProductRoute } from "./product/product.routes";
-import { CustomerRoute } from "./customer/customer.routes";
 
 class ServerBootstrap extends ConfigServer {
   public app: express.Application = express();
@@ -43,7 +42,6 @@ class ServerBootstrap extends ConfigServer {
       new UserRoute().router,
       new CategoryRoute().router,
       new ProductRoute().router,
-      new CustomerRoute().router,
     ];
   }
 

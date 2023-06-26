@@ -1,8 +1,8 @@
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { BaseEntity } from "../../config/base.entity";
-import { CustomerEntity } from "../../customer/entities/customer.entity";
 import { Exclude } from "class-transformer";
 import { RoleType } from "../dto/user.dto";
+import { OrderEntity } from "../../order/entities/order.entity";
 
 @Entity({ name: "user" })
 export class UserEntity extends BaseEntity {
@@ -22,9 +22,29 @@ export class UserEntity extends BaseEntity {
   @Column()
   password!: string;
 
-  @Column({ type: "enum", enum: RoleType, nullable: false })
+  @Column()
+  province!: string;
+
+  @Column()
+  city!: string;
+
+  @Column()
+  address!: string;
+
+  @Column()
+  dni!: number;
+
+  @Column()
+  phone!: number;
+
+  @Column({
+    type: "enum",
+    enum: RoleType,
+    nullable: false,
+    default: RoleType.USER,
+  })
   role!: RoleType;
 
-  @OneToOne(() => CustomerEntity, (customer) => customer.user)
-  customer!: CustomerEntity;
+  @OneToMany(() => OrderEntity, (order) => order.customer)
+  orders!: OrderEntity[];
 }

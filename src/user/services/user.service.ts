@@ -1,7 +1,8 @@
 import { DeleteResult, UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
-import { UserDTO } from "../dto/user.dto";
+import { RoleType, UserDTO } from "../dto/user.dto";
 import { UserEntity } from "../entities/user.entity";
+import { UserCustomerDTO } from "../dto/user-customer.dto";
 
 export class UserService extends BaseService<UserEntity> {
   constructor() {
@@ -11,14 +12,12 @@ export class UserService extends BaseService<UserEntity> {
   async findAllUsers(): Promise<[UserEntity[], number]> {
     return (await this.execRepository)
       .createQueryBuilder("users")
-      .leftJoinAndSelect("users.customer", "customer")
       .getManyAndCount();
   }
 
   async findUserById(id: string): Promise<UserEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("users")
-      .leftJoinAndSelect("users.customer", "customer")
       .where({ id })
       .getOne();
   }
@@ -27,7 +26,21 @@ export class UserService extends BaseService<UserEntity> {
     return (await this.execRepository).save(body);
   }
 
-  async updateUser(id: string, body: UserDTO): Promise<UpdateResult> {
+  async updateUserToCustomer(id: string): Promise<any> {
+    return (await this.execRepository).update(
+      { id },
+      { role: RoleType.CUSTOMER }
+    );
+  }
+
+  async updateBasicUser(id: string, body: UserDTO): Promise<UpdateResult> {
+    return (await this.execRepository).update({ id }, body);
+  }
+
+  async updateAdvancedUser(
+    id: string,
+    body: UserCustomerDTO
+  ): Promise<UpdateResult> {
     return (await this.execRepository).update({ id }, body);
   }
 

@@ -44,11 +44,46 @@ export class UserController {
     }
   }
 
-  async updateUser(req: Request, res: Response) {
+  async updateUserToCustomer(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      const data: UpdateResult = await this.userService.updateUserToCustomer(
+        id
+      );
+      if (!data.affected) {
+        return this.httpResponse.NotFound(
+          res,
+          "Error al actualizar el rol del usuario"
+        );
+      }
+      return this.httpResponse.Ok(res, data);
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async updateBasicUser(req: Request, res: Response) {
     const { id } = req.params;
     const userData = req.body;
     try {
-      const data: UpdateResult = await this.userService.updateUser(
+      const data: UpdateResult = await this.userService.updateBasicUser(
+        id,
+        userData
+      );
+      if (!data.affected) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(res, data);
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async updateAdvancedUser(req: Request, res: Response) {
+    const { id } = req.params;
+    const userData = req.body;
+    try {
+      const data: UpdateResult = await this.userService.updateAdvancedUser(
         id,
         userData
       );

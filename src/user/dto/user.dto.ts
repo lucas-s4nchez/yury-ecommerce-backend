@@ -1,4 +1,4 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 import { BaseDTO } from "../../config/base.dto";
 
 export class UserDTO extends BaseDTO {
@@ -17,7 +17,7 @@ export class UserDTO extends BaseDTO {
   @IsNotEmpty()
   password!: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   role!: RoleType;
 }
 
