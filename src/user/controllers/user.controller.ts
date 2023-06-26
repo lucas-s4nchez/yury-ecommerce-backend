@@ -12,7 +12,7 @@ export class UserController {
   async getUser(req: Request, res: Response) {
     try {
       const data = await this.userService.findAllUsers();
-      if (data.length === 0) {
+      if (data[0].length === 0) {
         return this.httpResponse.NotFound(res, "No hay usuarios");
       }
       return this.httpResponse.Ok(res, data);

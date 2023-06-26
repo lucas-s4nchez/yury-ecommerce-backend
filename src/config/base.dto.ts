@@ -11,5 +11,5 @@ export abstract class BaseDTO {
 
   @IsDate()
   @IsOptional()
-  UpdatedAt!: Date;
+  updatedAt!: Date;
 }

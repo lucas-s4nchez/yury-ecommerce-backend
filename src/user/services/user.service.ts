@@ -8,12 +8,19 @@ export class UserService extends BaseService<UserEntity> {
     super(UserEntity);
   }
 
-  async findAllUsers(): Promise<UserEntity[]> {
-    return (await this.execRepository).find();
+  async findAllUsers(): Promise<[UserEntity[], number]> {
+    return (await this.execRepository)
+      .createQueryBuilder("users")
+      .leftJoinAndSelect("users.customer", "customer")
+      .getManyAndCount();
   }
 
   async findUserById(id: string): Promise<UserEntity | null> {
-    return (await this.execRepository).findOneBy({ id });
+    return (await this.execRepository)
+      .createQueryBuilder("users")
+      .leftJoinAndSelect("users.customer", "customer")
+      .where({ id })
+      .getOne();
   }
 
   async createUser(body: UserDTO): Promise<UserEntity> {
