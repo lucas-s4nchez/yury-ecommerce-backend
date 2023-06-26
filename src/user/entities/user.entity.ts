@@ -22,20 +22,20 @@ export class UserEntity extends BaseEntity {
   @Column()
   password!: string;
 
-  @Column()
+  @Column({ nullable: true })
   province!: string;
 
-  @Column()
+  @Column({ nullable: true })
   city!: string;
 
-  @Column()
+  @Column({ nullable: true })
   address!: string;
 
-  @Column()
+  @Column({ nullable: true })
   dni!: number;
 
-  @Column()
-  phone!: number;
+  @Column({ nullable: true })
+  phone!: string;
 
   @Column({
     type: "enum",
@@ -45,6 +45,6 @@ export class UserEntity extends BaseEntity {
   })
   role!: RoleType;
 
-  @OneToMany(() => OrderEntity, (order) => order.customer)
+  @OneToMany(() => OrderEntity, (order) => order.user)
   orders!: OrderEntity[];
 }

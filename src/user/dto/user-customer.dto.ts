@@ -15,5 +15,5 @@ export class UserCustomerDTO extends BaseDTO {
   dni!: number;
 
   @IsNotEmpty()
-  phone!: number;
+  phone!: string;
 }

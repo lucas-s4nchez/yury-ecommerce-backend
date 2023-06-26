@@ -6,10 +6,19 @@ import { OrderEntity } from "./order.entity";
 @Entity({ name: "order_items" })
 export class OrderItemEntity extends BaseEntity {
   @Column()
-  quantityProduct!: number;
+  name!: string;
 
   @Column()
-  totalPrice!: number;
+  description!: string;
+
+  @Column()
+  price!: number;
+
+  @Column()
+  quantity!: number;
+
+  @Column()
+  subtotal!: number;
 
   @ManyToOne(() => OrderEntity, (order) => order.orderItems)
   @JoinColumn({ name: "order_id" })
