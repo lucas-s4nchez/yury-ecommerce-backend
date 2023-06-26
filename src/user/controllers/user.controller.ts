@@ -15,7 +15,8 @@ export class UserController {
       if (data[0].length === 0) {
         return this.httpResponse.NotFound(res, "No hay usuarios");
       }
-      return this.httpResponse.Ok(res, data);
+      const [users, count] = data;
+      return this.httpResponse.Ok(res, { users, count });
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }

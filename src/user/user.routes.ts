@@ -15,7 +15,7 @@ export class UserRoute extends BaseRouter<UserController> {
     this.router.post("/createUser", (req, res) =>
       this.controller.createUser(req, res)
     );
-    this.router.post("/updateUserToCustomer/:id", (req, res) =>
+    this.router.put("/updateUserToCustomer/:id", (req, res) =>
       this.controller.updateUserToCustomer(req, res)
     );
     this.router.put("/updateBasicUser/:id", (req, res) =>
