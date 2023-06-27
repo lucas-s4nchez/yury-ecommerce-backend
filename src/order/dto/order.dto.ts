@@ -2,7 +2,7 @@ import { IsNotEmpty, IsOptional } from "class-validator";
 import { BaseDTO } from "../../config/base.dto";
 import { UserEntity } from "../../user/entities/user.entity";
 
-class OrderDTO extends BaseDTO {
+export class OrderDTO extends BaseDTO {
   @IsNotEmpty()
   name!: string;
 
@@ -27,14 +27,8 @@ class OrderDTO extends BaseDTO {
   @IsNotEmpty()
   phone!: string;
 
-  @IsOptional()
-  status!: OrderStatusType;
-
   @IsNotEmpty()
   paymentMethod!: PaymentMethodsType;
-
-  @IsOptional()
-  isPaid!: boolean;
 
   @IsNotEmpty()
   total!: number;
@@ -44,6 +38,12 @@ class OrderDTO extends BaseDTO {
 
   @IsNotEmpty()
   numberOfItems!: number;
+
+  @IsOptional()
+  isPaid!: boolean;
+
+  @IsOptional()
+  status!: OrderStatusType;
 }
 
 export enum OrderStatusType {

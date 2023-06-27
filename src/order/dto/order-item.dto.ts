@@ -3,7 +3,7 @@ import { BaseDTO } from "../../config/base.dto";
 import { OrderEntity } from "../entities/order.entity";
 import { ProductEntity } from "../../product/entities/product.entity";
 
-class OrderItemDTO extends BaseDTO {
+export class OrderItemDTO extends BaseDTO {
   @IsNotEmpty()
   name!: string;
 
