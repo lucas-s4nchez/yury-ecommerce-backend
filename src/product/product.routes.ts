@@ -1,9 +1,13 @@
 import { BaseRouter } from "../shared/router/router";
 import { ProductController } from "./controllers/product.controller";
+import { ProductMiddleware } from "./middlewares/product.middleware";
 
-export class ProductRoute extends BaseRouter<ProductController> {
+export class ProductRoute extends BaseRouter<
+  ProductController,
+  ProductMiddleware
+> {
   constructor() {
-    super(ProductController); //Como 'BaseRouter' también ejecuta una funcion 'routes()' en su constructor, aquí ya se está ejecutanto la función de abajo
+    super(ProductController, ProductMiddleware); //Como 'BaseRouter' también ejecuta una funcion 'routes()' en su constructor, aquí ya se está ejecutanto la función de abajo
   }
 
   //Definir las rutas de producto

@@ -1,9 +1,13 @@
 import { CategoryController } from "./controllers/category.controller";
 import { BaseRouter } from "../shared/router/router";
+import { CategoryMiddleware } from "./middlewares/category.midleware";
 
-export class CategoryRoute extends BaseRouter<CategoryController> {
+export class CategoryRoute extends BaseRouter<
+  CategoryController,
+  CategoryMiddleware
+> {
   constructor() {
-    super(CategoryController); //Como 'BaseRouter' también ejecuta una funcion 'routes()' en su constructor, aquí ya se está ejecutanto la función de abajo
+    super(CategoryController, CategoryMiddleware); //Como 'BaseRouter' también ejecuta una funcion 'routes()' en su constructor, aquí ya se está ejecutanto la función de abajo
   }
 
   //Definir las rutas de categoria

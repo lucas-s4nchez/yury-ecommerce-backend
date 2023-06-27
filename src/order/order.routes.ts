@@ -1,9 +1,10 @@
 import { BaseRouter } from "../shared/router/router";
 import { OrderController } from "./controllers/order.controller";
+import { OrderMiddleware } from "./middlewares/order.middleware";
 
-export class OrderRoute extends BaseRouter<OrderController> {
+export class OrderRoute extends BaseRouter<OrderController, OrderMiddleware> {
   constructor() {
-    super(OrderController); //Como 'BaseRouter' también ejecuta una funcion 'routes()' en su constructor, aquí ya se está ejecutanto la función de abajo
+    super(OrderController, OrderMiddleware); //Como 'BaseRouter' también ejecuta una funcion 'routes()' en su constructor, aquí ya se está ejecutanto la función de abajo
   }
 
   //Definir las rutas de order
