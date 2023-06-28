@@ -1,10 +1,13 @@
 import { DeleteResult, UpdateResult } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { BaseService } from "../../config/base.service";
-import { UserDTO } from "../dto/user.dto";
 import { UserEntity } from "../entities/user.entity";
-import { UserCustomerDTO } from "../dto/user-customer.dto";
 import { RoleType } from "../types/role.types";
+import {
+  CreateUserDTO,
+  UpdateAdvancedUserDTO,
+  UpdateBasicUserDTO,
+} from "../dto/user.dto";
 
 export class UserService extends BaseService<UserEntity> {
   constructor() {
@@ -53,12 +56,10 @@ export class UserService extends BaseService<UserEntity> {
       .getOne();
   }
 
-  async createUser(body: UserDTO): Promise<UserEntity> {
+  async createUser(body: CreateUserDTO): Promise<UserEntity> {
     const newUser = (await this.execRepository).create(body);
     const hashPassword = await bcrypt.hash(newUser.password, 10);
     newUser.password = hashPassword;
-    newUser.email = newUser.email.toLowerCase();
-    newUser.username = newUser.username.toLowerCase();
     return (await this.execRepository).save(newUser);
   }
 
@@ -69,13 +70,19 @@ export class UserService extends BaseService<UserEntity> {
     );
   }
 
-  async updateBasicUser(id: string, body: UserDTO): Promise<UpdateResult> {
+  async updateBasicUser(
+    id: string,
+    body: UpdateBasicUserDTO
+  ): Promise<UpdateResult> {
+    if (body.password) {
+      body.password = await bcrypt.hash(body.password, 10);
+    }
     return (await this.execRepository).update({ id }, body);
   }
 
   async updateAdvancedUser(
     id: string,
-    body: UserCustomerDTO
+    body: UpdateAdvancedUserDTO
   ): Promise<UpdateResult> {
     return (await this.execRepository).update({ id }, body);
   }

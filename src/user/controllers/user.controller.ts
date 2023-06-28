@@ -36,7 +36,7 @@ export class UserController {
   }
 
   async createUser(req: Request, res: Response) {
-    const userData = req.body;
+    const { province, city, address, dni, phone, ...userData } = req.body;
     try {
       const data = await this.userService.createUser(userData);
       return this.httpResponse.Ok(res, data);
@@ -66,8 +66,45 @@ export class UserController {
 
   async updateBasicUser(req: Request, res: Response) {
     const { id } = req.params;
-    const userData = req.body;
+    const { province, city, address, dni, phone, ...userData } = req.body;
     try {
+      const existingUser = await this.userService.findUserById(id);
+      if (!existingUser) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
+
+      // Verificar y actualizar username si es diferente
+      if (userData.username !== existingUser.username) {
+        const isUsernameTaken = await this.userService.findUserByUsername(
+          userData.username
+        );
+        if (isUsernameTaken) {
+          return this.httpResponse.BadRequest(res, [
+            {
+              property: "username",
+              errors: [
+                `El nombre de usuario '${userData.username}' ya está registrado`,
+              ],
+            },
+          ]);
+        }
+      }
+
+      // Verificar y actualizar email si es diferente
+      if (userData.email !== existingUser.email) {
+        const isEmailTaken = await this.userService.findUserByEmail(
+          userData.email
+        );
+        if (isEmailTaken) {
+          return this.httpResponse.BadRequest(res, [
+            {
+              property: "email",
+              errors: [`El email '${userData.email}' ya está registrado`],
+            },
+          ]);
+        }
+      }
+
       const data: UpdateResult = await this.userService.updateBasicUser(
         id,
         userData
@@ -83,7 +120,8 @@ export class UserController {
 
   async updateAdvancedUser(req: Request, res: Response) {
     const { id } = req.params;
-    const userData = req.body;
+    const { name, lastName, role, password, username, email, ...userData } =
+      req.body;
     try {
       const data: UpdateResult = await this.userService.updateAdvancedUser(
         id,

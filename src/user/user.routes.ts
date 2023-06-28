@@ -20,7 +20,7 @@ export class UserRoute extends BaseRouter<UserController, UserMiddleware> {
     this.router.post(
       "/createUser",
       this.middleware.checkJsonWebToken,
-      this.middleware.userValidator.bind(this.middleware),
+      this.middleware.createUserValidator.bind(this.middleware),
       (req, res) => this.controller.createUser(req, res)
     );
     this.router.put(
@@ -31,11 +31,13 @@ export class UserRoute extends BaseRouter<UserController, UserMiddleware> {
     this.router.put(
       "/updateBasicUser/:id",
       this.middleware.checkJsonWebToken,
+      this.middleware.updateBasicUserValidator.bind(this.middleware),
       (req, res) => this.controller.updateBasicUser(req, res)
     );
     this.router.put(
       "/updateAdvancedUser/:id",
       this.middleware.checkJsonWebToken,
+      this.middleware.updateAdvancedUserValidator.bind(this.middleware),
       (req, res) => this.controller.updateAdvancedUser(req, res)
     );
     this.router.delete(
