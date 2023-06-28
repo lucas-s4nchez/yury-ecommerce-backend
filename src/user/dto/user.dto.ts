@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsOptional } from "class-validator";
 import { BaseDTO } from "../../config/base.dto";
+import { RoleType } from "../types/role.types";
 
 export class UserDTO extends BaseDTO {
   @IsNotEmpty()
@@ -19,10 +20,4 @@ export class UserDTO extends BaseDTO {
 
   @IsOptional()
   role!: RoleType;
-}
-
-export enum RoleType {
-  USER = "USER",
-  CUSTOMER = "CUSTOMER",
-  ADMIN = "ADMIN",
 }

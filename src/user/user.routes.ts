@@ -9,7 +9,11 @@ export class UserRoute extends BaseRouter<UserController, UserMiddleware> {
 
   //Definir las rutas de usuario
   routes(): void {
-    this.router.get("/users", (req, res) => this.controller.getUser(req, res));
+    this.router.get(
+      "/users",
+      (req, res, next) => this.middleware.checkJsonWebToken(req, res, next),
+      (req, res) => this.controller.getUser(req, res)
+    );
     this.router.get("/user/:id", (req, res) =>
       this.controller.getUserById(req, res)
     );

@@ -9,6 +9,7 @@ import { CategoryRoute } from "./category/category.routes";
 import { ProductRoute } from "./product/product.routes";
 import { OrderRoute } from "./order/order.routes";
 import { OrderItemRoute } from "./order/order-item.routes";
+import { AuthRoute } from "./auth/auth.routes";
 
 class ServerBootstrap extends ConfigServer {
   public app: express.Application = express();
@@ -46,6 +47,7 @@ class ServerBootstrap extends ConfigServer {
       new ProductRoute().router,
       new OrderRoute().router,
       new OrderItemRoute().router,
+      new AuthRoute().router,
     ];
   }
 

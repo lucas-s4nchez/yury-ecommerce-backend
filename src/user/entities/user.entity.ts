@@ -1,8 +1,7 @@
 import { Column, Entity, OneToMany } from "typeorm";
 import { BaseEntity } from "../../config/base.entity";
-import { Exclude } from "class-transformer";
-import { RoleType } from "../dto/user.dto";
 import { OrderEntity } from "../../order/entities/order.entity";
+import { RoleType } from "../types/role.types";
 
 @Entity({ name: "user" })
 export class UserEntity extends BaseEntity {
@@ -18,8 +17,7 @@ export class UserEntity extends BaseEntity {
   @Column()
   email!: string;
 
-  @Exclude() //Para que no muestre el password
-  @Column()
+  @Column({ select: false }) //Para que no muestre el password
   password!: string;
 
   @Column({ nullable: true })
