@@ -11,10 +11,10 @@ export class UserEntity extends BaseEntity {
   @Column()
   lastName!: string;
 
-  @Column()
+  @Column({ unique: true })
   username!: string;
 
-  @Column()
+  @Column({ unique: true })
   email!: string;
 
   @Column({ select: false }) //Para que no muestre el password

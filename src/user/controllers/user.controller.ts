@@ -41,6 +41,7 @@ export class UserController {
       const data = await this.userService.createUser(userData);
       return this.httpResponse.Ok(res, data);
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }
