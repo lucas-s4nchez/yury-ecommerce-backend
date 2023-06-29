@@ -14,10 +14,19 @@ import { BaseDTO } from "../../config/base.dto";
 import { RoleType } from "../types/role.types";
 import { IsEmailUnique } from "../validators/email-unique.validator";
 import { IsUsernameUnique } from "../validators/username-unique.validator";
+import {
+  AlphaWithSpecialCharactersRegex,
+  AlphanumericWithSpecialCharactersRegex,
+  NumericRangeRegex,
+  PasswordValidationRegex,
+} from "../../shared/helpers/regEx.helper";
 
 export class CreateUserDTO extends BaseDTO {
   @IsNotEmpty({ message: "El nombre es requerido" })
   @IsString({ message: "Tipo de dato incorrecto" })
+  @Matches(AlphaWithSpecialCharactersRegex, {
+    message: "El nombre solo puede contener letras",
+  })
   @Length(3, 100, {
     message: "El nombre debe tener entre 3 y 100 caracteres",
   })
@@ -25,6 +34,9 @@ export class CreateUserDTO extends BaseDTO {
 
   @IsNotEmpty({ message: "El apellido es requerido" })
   @IsString({ message: "Tipo de dato incorrecto" })
+  @Matches(AlphaWithSpecialCharactersRegex, {
+    message: "El apelido solo puede contener letras",
+  })
   @Length(3, 100, {
     message: "El apellido debe tener entre 3 y 100 caracteres",
   })
@@ -32,6 +44,10 @@ export class CreateUserDTO extends BaseDTO {
 
   @IsNotEmpty({ message: "El nombre de usuario es requerido" })
   @IsString({ message: "Tipo de dato incorrecto" })
+  @Matches(AlphanumericWithSpecialCharactersRegex, {
+    message:
+      "El nombre de usuario solo puede contener letras, numeros y caracteres especiales como acentos y diéresis en español",
+  })
   @Length(3, 20, {
     message: "El nombre de usuario debe tener entre 3 y 20 caracteres",
   })
@@ -51,9 +67,9 @@ export class CreateUserDTO extends BaseDTO {
   @Length(8, 20, {
     message: "La contraseña debe tener entre 8 y 20 caracteres",
   })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/, {
+  @Matches(PasswordValidationRegex, {
     message:
-      "La contraseña debe contener al menos una letra mayúscula, una letra minúscula y un número",
+      "La contraseña debe contener al menos una letra mayúscula, una letra minúscula y un número (sin acentos o caracteres especiales)",
   })
   password!: string;
 
@@ -96,16 +112,16 @@ export class UpdateBasicUserDTO extends BaseDTO {
   @Length(8, 20, {
     message: "La contraseña debe tener entre 8 y 20 caracteres",
   })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/, {
+  @Matches(PasswordValidationRegex, {
     message:
-      "La contraseña debe contener al menos una letra mayúscula, una letra minúscula y un número",
+      "La contraseña debe contener al menos una letra mayúscula, una letra minúscula y un número (sin acentos o caracteres especiales)",
   })
   password!: string;
 }
 
 export class UpdateAdvancedUserDTO extends BaseDTO {
   @IsNotEmpty({ message: "La provincia es requerida" })
-  @Matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/, {
+  @Matches(AlphaWithSpecialCharactersRegex, {
     message: "La provincia solo puede contener letras",
   })
   @Length(3, 100, {
@@ -114,7 +130,7 @@ export class UpdateAdvancedUserDTO extends BaseDTO {
   province!: string;
 
   @IsNotEmpty({ message: "La ciudad es requerida" })
-  @Matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/, {
+  @Matches(AlphaWithSpecialCharactersRegex, {
     message: "La ciudad solo puede contener letras",
   })
   @Length(3, 150, {
@@ -123,7 +139,7 @@ export class UpdateAdvancedUserDTO extends BaseDTO {
   city!: string;
 
   @IsNotEmpty({ message: "La dirección es requerida" })
-  @Matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ0-9\s]+$/, {
+  @Matches(AlphanumericWithSpecialCharactersRegex, {
     message: "La dirección solo puede contener letras y números",
   })
   @Length(3, 150, {
@@ -132,7 +148,7 @@ export class UpdateAdvancedUserDTO extends BaseDTO {
   address!: string;
 
   @IsNotEmpty({ message: "el DNI es requerido" })
-  @IsNumberString({ locale: "es-ES" }, { message: "el DNI noes válido" })
+  @IsNumberString({ locale: "es-ES" }, { message: "el DNI no es válido" })
   @Length(8, 8, {
     message: "El DNI debe tener 8 caracteres",
   })
@@ -140,6 +156,6 @@ export class UpdateAdvancedUserDTO extends BaseDTO {
 
   @IsNotEmpty({ message: "El número de teléfono es requerido" })
   @IsString({ message: "Tipo de dato incorrecto" })
-  @Matches(/^[0-9]{8,15}$/, { message: "El número de teléfono no es válido" })
+  @Matches(NumericRangeRegex, { message: "El número de teléfono no es válido" })
   phone!: string;
 }
