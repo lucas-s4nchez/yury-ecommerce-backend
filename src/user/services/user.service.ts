@@ -8,16 +8,29 @@ import {
   UpdateAdvancedUserDTO,
   UpdateBasicUserDTO,
 } from "../dto/user.dto";
+import { OrderType } from "../../shared/types/shared.types";
 
 export class UserService extends BaseService<UserEntity> {
   constructor() {
     super(UserEntity);
   }
 
-  async findAllUsers(): Promise<[UserEntity[], number]> {
-    return (await this.execRepository)
+  async findAllUsers(
+    page: number,
+    limit: number,
+    order: OrderType
+  ): Promise<[UserEntity[], number, number]> {
+    const skipCount = (page - 1) * limit;
+    const [users, count] = await (await this.execRepository)
       .createQueryBuilder("users")
+      .orderBy("users.name", order)
+      .skip(skipCount)
+      .take(limit)
       .getManyAndCount();
+
+    const totalPages = Math.ceil(count / limit);
+
+    return [users, count, totalPages];
   }
 
   async findUserWithRole(

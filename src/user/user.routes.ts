@@ -13,35 +13,35 @@ export class UserRoute extends BaseRouter<UserController, UserMiddleware> {
       this.controller.getUser(req, res)
     );
     this.router.get(
-      "/user/:id",
+      "/users/:id",
       this.middleware.checkJsonWebToken,
       (req, res) => this.controller.getUserById(req, res)
     );
     this.router.post(
-      "/createUser",
+      "/users",
       this.middleware.checkJsonWebToken,
       this.middleware.createUserValidator.bind(this.middleware),
       (req, res) => this.controller.createUser(req, res)
     );
     this.router.put(
-      "/updateUserToCustomer/:id",
+      "/users/updateUserToCustomer/:id",
       this.middleware.checkJsonWebToken,
       (req, res) => this.controller.updateUserToCustomer(req, res)
     );
     this.router.put(
-      "/updateBasicUser/:id",
+      "/users/updateBasicUser/:id",
       this.middleware.checkJsonWebToken,
       this.middleware.updateBasicUserValidator.bind(this.middleware),
       (req, res) => this.controller.updateBasicUser(req, res)
     );
     this.router.put(
-      "/updateAdvancedUser/:id",
+      "/users/updateAdvancedUser/:id",
       this.middleware.checkJsonWebToken,
       this.middleware.updateAdvancedUserValidator.bind(this.middleware),
       (req, res) => this.controller.updateAdvancedUser(req, res)
     );
     this.router.delete(
-      "/deleteUser/:id",
+      "/users/:id",
       this.middleware.checkJsonWebToken,
       this.middleware.checkAdminRole.bind(this.middleware),
       (req, res) => this.controller.deleteUser(req, res)
