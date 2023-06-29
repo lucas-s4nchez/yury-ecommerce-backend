@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { CategoryService } from "../services/category.service";
 import { HttpResponse } from "../../shared/response/http.response";
 import { DeleteResult, UpdateResult } from "typeorm";
+import { CategoryDTO } from "../dto/category.dto";
 
 export class CategoryController {
   constructor(
@@ -33,6 +34,11 @@ export class CategoryController {
   }
   async createCategory(req: Request, res: Response) {
     const categoryData = req.body;
+
+    if (categoryData.name) {
+      categoryData.name = categoryData.name.toLowerCase();
+    }
+
     try {
       const data = await this.categoryService.createCategory(categoryData);
       return this.httpResponse.Ok(res, data);
@@ -44,6 +50,27 @@ export class CategoryController {
     const { id } = req.params;
     const categoryData = req.body;
     try {
+      const existingCategory = await this.categoryService.findCategoryById(id);
+      if (!existingCategory) {
+        return this.httpResponse.NotFound(res, "Categoria no encontrada");
+      }
+
+      // Verificar y actualizar categoria si es diferente
+      if (categoryData.name !== existingCategory.name) {
+        const isNameTaken = await this.categoryService.findCategoryByName(
+          categoryData.name
+        );
+        if (isNameTaken) {
+          return this.httpResponse.BadRequest(res, [
+            {
+              property: "name",
+              errors: [
+                `La categoria '${categoryData.name}' ya está registrada`,
+              ],
+            },
+          ]);
+        }
+      }
       const data: UpdateResult = await this.categoryService.updateCategory(
         id,
         categoryData
