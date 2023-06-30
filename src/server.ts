@@ -10,6 +10,8 @@ import { ProductRoute } from "./product/product.routes";
 import { OrderRoute } from "./order/order.routes";
 import { OrderItemRoute } from "./order/order-item.routes";
 import { AuthRoute } from "./auth/auth.routes";
+import fileUpload from "express-fileupload";
+import { v2 as cloudinary } from "cloudinary";
 
 class ServerBootstrap extends ConfigServer {
   public app: express.Application = express();
@@ -18,6 +20,7 @@ class ServerBootstrap extends ConfigServer {
   constructor() {
     super();
     this.middlewares();
+    this.cloudinaryConfig();
     this.dbConnect();
     this.app.use("/api", this.routes());
     this.listen();
@@ -38,6 +41,21 @@ class ServerBootstrap extends ConfigServer {
     this.app.use(urlencoded({ extended: true }));
     this.app.use(cors());
     this.app.use(morgan("dev"));
+    this.app.use(
+      fileUpload({
+        useTempFiles: true,
+        tempFileDir: "/tmp/",
+        createParentPath: true,
+      })
+    );
+  }
+
+  cloudinaryConfig() {
+    cloudinary.config({
+      cloud_name: this.getEnvironment("CLOUDINARY_NAME"),
+      api_key: this.getEnvironment("CLOUDINARY_API_KEY"),
+      api_secret: this.getEnvironment("CLOUDINARY_API_SECRET"),
+    });
   }
 
   routes(): Array<express.Router> {

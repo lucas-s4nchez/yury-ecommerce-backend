@@ -2,10 +2,17 @@ import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { ProductService } from "../services/product.service";
+import { UploadedFile } from "express-fileupload";
+import {
+  deleteImageFromCloudinary,
+  uploadImageToCloudinary,
+} from "../helpers/cloudinary.helper";
+import { ProductImageService } from "../services/product-image.service";
 
 export class ProductController {
   constructor(
     private readonly productService: ProductService = new ProductService(),
+    private readonly productImageService: ProductImageService = new ProductImageService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
@@ -39,10 +46,26 @@ export class ProductController {
   }
 
   async createProduct(req: Request, res: Response) {
+    const archivo = req.files?.archivo as UploadedFile[] | undefined;
     const productData = req.body;
+
     try {
-      const data = await this.productService.createProduct(productData);
-      return this.httpResponse.Ok(res, data);
+      const newProduct = await this.productService.createProduct(productData);
+
+      for (const file of archivo || []) {
+        const { tempFilePath } = file;
+        const { secure_url, public_id } = await uploadImageToCloudinary(
+          tempFilePath,
+          `yury-ecommerce/products`
+        );
+        const productImage = {
+          url: secure_url,
+          public_id: public_id,
+          product: newProduct,
+        };
+        await this.productImageService.createProductImage(productImage);
+      }
+      return this.httpResponse.Ok(res, newProduct);
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }
@@ -68,12 +91,26 @@ export class ProductController {
   async deleteProduct(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const data: DeleteResult = await this.productService.deleteProduct(id);
-      if (!data.affected) {
+      // Obtener todas las imágenes del producto
+      const images =
+        await this.productImageService.findAllProductImageByProductId(id);
+      if (images && images?.length !== 0) {
+        // Eliminar cada imagen en Cloudinary
+        for (const image of images) {
+          await deleteImageFromCloudinary(image.public_id);
+        }
+      }
+
+      // Eliminar el producto
+      const deleteResult: DeleteResult =
+        await this.productService.deleteProduct(id);
+      if (!deleteResult.affected) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
-      return this.httpResponse.Ok(res, data);
+
+      return this.httpResponse.Ok(res, deleteResult);
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }

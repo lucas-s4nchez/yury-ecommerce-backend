@@ -2,10 +2,11 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { BaseEntity } from "../../config/base.entity";
 import { CategoryEntity } from "../../category/entities/category.entity";
 import { OrderItemEntity } from "../../order/entities/order-item.entity";
+import { ProductImageEntity } from "./product-image.entity";
 
 @Entity({ name: "product" })
 export class ProductEntity extends BaseEntity {
-  @Column()
+  @Column({ unique: true })
   name!: string;
 
   @Column()
@@ -18,6 +19,9 @@ export class ProductEntity extends BaseEntity {
   @JoinColumn({ name: "category_id" })
   category!: CategoryEntity;
 
+  @OneToMany(() => ProductImageEntity, (productImage) => productImage.product)
+  images!: ProductImageEntity[];
+
   @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.product)
-  orderItem!: OrderItemEntity[];
+  orderItems!: OrderItemEntity[];
 }

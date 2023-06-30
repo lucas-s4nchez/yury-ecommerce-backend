@@ -24,7 +24,7 @@ export class OrderItemEntity extends BaseEntity {
   @JoinColumn({ name: "order_id" })
   order!: OrderEntity;
 
-  @ManyToOne(() => ProductEntity, (product) => product.orderItem)
+  @ManyToOne(() => ProductEntity, (product) => product.orderItems)
   @JoinColumn({ name: "product_id" })
   product!: ProductEntity;
 }

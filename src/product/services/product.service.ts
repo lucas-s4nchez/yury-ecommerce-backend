@@ -12,12 +12,14 @@ export class ProductService extends BaseService<ProductEntity> {
     return (await this.execRepository)
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
+      .leftJoinAndSelect("products.images", "images")
       .getManyAndCount();
   }
   async findProductById(id: string): Promise<ProductEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
+      .leftJoinAndSelect("products.images", "images")
       .where({ id })
       .getOne();
   }
