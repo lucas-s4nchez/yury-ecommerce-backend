@@ -20,7 +20,7 @@ export class ProductRoute extends BaseRouter<
     );
     this.router.post(
       "/createProduct",
-      this.middleware.uploadValidationMiddleware.bind(this.middleware),
+      this.middleware.productValidator.bind(this.middleware),
       (req, res) => this.controller.createProduct(req, res)
     );
     this.router.put("/updateProduct/:id", (req, res) =>

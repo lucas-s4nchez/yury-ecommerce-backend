@@ -1,17 +1,23 @@
 import { IsNotEmpty } from "class-validator";
 import { BaseDTO } from "../../config/base.dto";
 import { CategoryEntity } from "../../category/entities/category.entity";
+import { IsProductUnique } from "../validators/product-unique.validator";
+import { BrandEntity } from "../entities/brand.entity";
 
 export class ProductDTO extends BaseDTO {
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "El nombre es requerido" })
+  @IsProductUnique()
   name!: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "La descripción es requerida" })
   description!: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "El precio es requerido" })
   price!: number;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "La marca es requerida" })
+  brand!: BrandEntity;
+
+  @IsNotEmpty({ message: "La categoría es requerida" })
   category!: CategoryEntity;
 }

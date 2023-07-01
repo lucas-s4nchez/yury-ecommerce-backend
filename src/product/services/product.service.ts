@@ -23,6 +23,14 @@ export class ProductService extends BaseService<ProductEntity> {
       .where({ id })
       .getOne();
   }
+
+  async findProductByName(name: string): Promise<ProductEntity | null> {
+    return (await this.execRepository)
+      .createQueryBuilder("products")
+      .where({ name })
+      .getOne();
+  }
+
   async createProduct(body: ProductDTO): Promise<ProductEntity> {
     return (await this.execRepository).save(body);
   }
@@ -33,6 +41,6 @@ export class ProductService extends BaseService<ProductEntity> {
     id: string,
     infoUpdate: ProductDTO
   ): Promise<UpdateResult> {
-    return (await this.execRepository).update(id, infoUpdate);
+    return await (await this.execRepository).update(id, infoUpdate);
   }
 }

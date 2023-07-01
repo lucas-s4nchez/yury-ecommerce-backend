@@ -1,13 +1,11 @@
 import { DeleteResult, UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { ProductDTO } from "../dto/product.dto";
-import { ProductEntity } from "../entities/product.entity";
-import { ProductImageEntity } from "../entities/product-image.entity";
-import { ProductImageDTO } from "../dto/product-image.dto";
+import { ImageEntity } from "../entities/image.entity";
 
-export class ProductImageService extends BaseService<ProductImageEntity> {
+export class ImageService extends BaseService<ImageEntity> {
   constructor() {
-    super(ProductImageEntity);
+    super(ImageEntity);
   }
 
   // async findAllProducts(): Promise<[ProductEntity[], number]> {
@@ -18,13 +16,13 @@ export class ProductImageService extends BaseService<ProductImageEntity> {
   // }
   async findAllProductImageByProductId(
     id: string
-  ): Promise<ProductImageEntity[] | null> {
+  ): Promise<ImageEntity[] | null> {
     return (await this.execRepository)
       .createQueryBuilder("product_images")
       .where("product_images.product_id = :id", { id })
       .getMany();
   }
-  async createProductImage(body: any): Promise<ProductImageEntity> {
+  async createProductImage(body: any): Promise<ImageEntity> {
     return (await this.execRepository).save(body);
   }
   async deleteProduct(id: string): Promise<DeleteResult> {
@@ -34,8 +32,8 @@ export class ProductImageService extends BaseService<ProductImageEntity> {
     return (await this.execRepository)
       .createQueryBuilder()
       .delete()
-      .from(ProductImageEntity)
-      .where({ product_id: id })
+      .from(ImageEntity)
+      .where("product = :productId", { productId: id })
       .execute();
   }
   async updateProduct(

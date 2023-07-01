@@ -2,17 +2,13 @@ import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { ProductService } from "../services/product.service";
-import { UploadedFile } from "express-fileupload";
-import {
-  deleteImageFromCloudinary,
-  uploadImageToCloudinary,
-} from "../helpers/cloudinary.helper";
-import { ProductImageService } from "../services/product-image.service";
+import { deleteImageFromCloudinary } from "../helpers/cloudinary.helper";
+import { ImageService } from "../services/image.service";
 
 export class ProductController {
   constructor(
     private readonly productService: ProductService = new ProductService(),
-    private readonly productImageService: ProductImageService = new ProductImageService(),
+    private readonly productImageService: ImageService = new ImageService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
@@ -25,7 +21,6 @@ export class ProductController {
       }
 
       const [products, count] = data;
-
       return this.httpResponse.Ok(res, { products, count });
     } catch (e) {
       return this.httpResponse.Error(res, e);
@@ -46,26 +41,12 @@ export class ProductController {
   }
 
   async createProduct(req: Request, res: Response) {
-    const archivo = req.files?.archivo as UploadedFile[] | undefined;
-    const productData = req.body;
+    const { files, ...productData } = req.body;
 
     try {
-      const newProduct = await this.productService.createProduct(productData);
+      const data = await this.productService.createProduct(productData);
 
-      for (const file of archivo || []) {
-        const { tempFilePath } = file;
-        const { secure_url, public_id } = await uploadImageToCloudinary(
-          tempFilePath,
-          `yury-ecommerce/products`
-        );
-        const productImage = {
-          url: secure_url,
-          public_id: public_id,
-          product: newProduct,
-        };
-        await this.productImageService.createProductImage(productImage);
-      }
-      return this.httpResponse.Ok(res, newProduct);
+      return this.httpResponse.Ok(res, data);
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }
@@ -73,7 +54,7 @@ export class ProductController {
 
   async updateProduct(req: Request, res: Response) {
     const { id } = req.params;
-    const productData = req.body;
+    const { files, ...productData } = req.body;
     try {
       const data: UpdateResult = await this.productService.updateProduct(
         id,
@@ -84,6 +65,7 @@ export class ProductController {
       }
       return this.httpResponse.Ok(res, data);
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }

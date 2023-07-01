@@ -2,8 +2,8 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { BaseEntity } from "../../config/base.entity";
 import { ProductEntity } from "./product.entity";
 
-@Entity({ name: "product_image" })
-export class ProductImageEntity extends BaseEntity {
+@Entity({ name: "image" })
+export class ImageEntity extends BaseEntity {
   @Column()
   url!: string;
 
@@ -13,6 +13,6 @@ export class ProductImageEntity extends BaseEntity {
   @ManyToOne(() => ProductEntity, (product) => product.images, {
     onDelete: "CASCADE",
   })
-  @JoinColumn({ name: "product_id" })
+  @JoinColumn({ name: "product_id", referencedColumnName: "id" })
   product!: ProductEntity;
 }

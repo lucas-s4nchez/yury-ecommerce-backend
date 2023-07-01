@@ -1,8 +1,17 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from "typeorm";
 import { BaseEntity } from "../../config/base.entity";
 import { CategoryEntity } from "../../category/entities/category.entity";
 import { OrderItemEntity } from "../../order/entities/order-item.entity";
-import { ProductImageEntity } from "./product-image.entity";
+import { ImageEntity } from "./image.entity";
+import { StockEntity } from "./stock.entity";
+import { BrandEntity } from "./brand.entity";
 
 @Entity({ name: "product" })
 export class ProductEntity extends BaseEntity {
@@ -19,8 +28,15 @@ export class ProductEntity extends BaseEntity {
   @JoinColumn({ name: "category_id" })
   category!: CategoryEntity;
 
-  @OneToMany(() => ProductImageEntity, (productImage) => productImage.product)
-  images!: ProductImageEntity[];
+  @ManyToOne(() => BrandEntity, (brand) => brand.products)
+  @JoinColumn({ name: "brand_id" })
+  brand!: BrandEntity;
+
+  @OneToOne(() => StockEntity, (stock) => stock.product)
+  stock!: StockEntity;
+
+  @OneToMany(() => ImageEntity, (productImage) => productImage.product)
+  images!: ImageEntity[];
 
   @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.product)
   orderItems!: OrderItemEntity[];
