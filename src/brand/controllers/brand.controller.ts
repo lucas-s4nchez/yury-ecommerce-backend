@@ -83,9 +83,32 @@ export class BrandController {
 
   async updateBrand(req: Request, res: Response) {
     const { id } = req.params;
-    const { name } = req.body;
+    const brandData = req.body;
+    brandData.name = brandData.name.toLowerCase().trim();
     try {
-      const data: UpdateResult = await this.brandService.updateBrand(id, name);
+      const existingBrand = await this.brandService.findBrandById(id);
+      if (!existingBrand) {
+        return this.httpResponse.NotFound(res, "Talle no encontrado");
+      }
+
+      // Verificar y actualizar talle si es diferente
+      if (brandData.name !== existingBrand.name) {
+        const isNameTaken = await this.brandService.findBrandByName(
+          brandData.name
+        );
+        if (isNameTaken) {
+          return this.httpResponse.BadRequest(res, [
+            {
+              property: "name",
+              errors: [`La marca '${brandData.name}' ya está registrada`],
+            },
+          ]);
+        }
+      }
+      const data: UpdateResult = await this.brandService.updateBrand(
+        id,
+        brandData
+      );
       if (!data.affected) {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }

@@ -35,14 +35,16 @@ export class ProductMiddleware extends SharedMiddleware {
   };
 
   productValidator(req: Request, res: Response, next: NextFunction) {
-    const { name, description, price, category, brand } = req.body;
+    const { name, description, price, category, brand, sizes } = req.body;
     const validProduct = new ProductDTO();
+    console.log(validProduct);
 
     validProduct.name = name;
     validProduct.description = description;
     validProduct.price = price;
     validProduct.category = category;
     validProduct.brand = brand;
+    validProduct.sizes = sizes;
 
     validate(validProduct).then((err) => {
       if (err.length > 0) {

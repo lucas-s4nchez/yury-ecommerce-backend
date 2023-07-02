@@ -24,7 +24,7 @@ export class BrandRoute extends BaseRouter<BrandController, BrandMiddleware> {
     );
     this.router.put(
       "/brands/:id",
-      this.middleware.brandValidator.bind(this.middleware),
+      this.middleware.updateBrandValidator.bind(this.middleware),
       (req, res) => this.controller.updateBrand(req, res)
     );
     this.router.delete("/brands/:id", (req, res) =>

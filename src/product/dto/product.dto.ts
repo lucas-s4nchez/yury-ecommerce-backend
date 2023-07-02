@@ -4,6 +4,7 @@ import { CategoryEntity } from "../../category/entities/category.entity";
 import { IsProductUnique } from "../validators/product-unique.validator";
 import { BrandEntity } from "../../brand/entities/brand.entity";
 import { SizeDTO } from "../../size/dto/size.dto";
+import { SizeEntity } from "../../size/entities/size.entity";
 
 export class ProductDTO extends BaseDTO {
   @IsNotEmpty({ message: "El nombre es requerido" })
