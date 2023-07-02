@@ -13,6 +13,7 @@ export class ProductService extends BaseService<ProductEntity> {
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
       .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.stock", "stock")
       .getManyAndCount();
   }
   async findProductById(id: string): Promise<ProductEntity | null> {
@@ -20,6 +21,7 @@ export class ProductService extends BaseService<ProductEntity> {
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
       .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.stock", "stock")
       .where({ id })
       .getOne();
   }

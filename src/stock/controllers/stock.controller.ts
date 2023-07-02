@@ -1,29 +1,30 @@
 import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
-import { BrandService } from "../services/brand.service";
 import { OrderType } from "../../shared/types/shared.types";
 import { DeleteResult, UpdateResult } from "typeorm";
+import { StockService } from "../services/stock.service";
 
-export class BrandController {
+export class StockController {
   constructor(
-    private readonly brandService: BrandService = new BrandService(),
+    private readonly stockService: StockService = new StockService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
-  async brandList(req: Request, res: Response) {
+  async stockList(req: Request, res: Response) {
     try {
-      const data = await this.brandService.findAllBrands();
+      const data = await this.stockService.findAllStocks();
 
       if (data.length === 0) {
-        return this.httpResponse.NotFound(res, "No hay marcas");
+        return this.httpResponse.NotFound(res, "No hay stocks");
       }
       return this.httpResponse.Ok(res, data);
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }
 
-  async getBrands(req: Request, res: Response) {
+  async getStocks(req: Request, res: Response) {
     try {
       let { page = 1, limit = 5, order = OrderType.ASC as any } = req.query;
       let pageNumber = parseInt(page as string, 10);
@@ -42,50 +43,57 @@ export class BrandController {
         order = OrderType.ASC; // Valor predeterminado si no es válido
       }
 
-      const data = await this.brandService.findAllBrandsAndPaginate(
+      const data = await this.stockService.findAllStocksAndPaginate(
         pageNumber,
         limitNumber,
         order
       );
       if (data[0].length === 0) {
-        return this.httpResponse.NotFound(res, "No hay marcas");
+        return this.httpResponse.NotFound(res, "No hay stocks");
       }
-      const [brands, count, totalPages] = data;
-      return this.httpResponse.Ok(res, { brands, count, totalPages });
+      const [stocks, count, totalPages] = data;
+      return this.httpResponse.Ok(res, { stocks, count, totalPages });
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }
 
-  async getBrandById(req: Request, res: Response) {
+  async getStockById(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const data = await this.brandService.findBrandById(id);
+      const data = await this.stockService.findStockById(id);
       if (!data) {
-        return this.httpResponse.NotFound(res, "No existe esta marca");
+        return this.httpResponse.NotFound(res, "No existe este stock");
       }
       return this.httpResponse.Ok(res, data);
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }
 
-  async createBrand(req: Request, res: Response) {
-    const brandData = req.body;
+  async createStock(req: Request, res: Response) {
+    const stockData = req.body;
 
     try {
-      const data = await this.brandService.createBrand(brandData);
+      const data = await this.stockService.createStock(stockData);
       return this.httpResponse.Ok(res, data);
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }
 
-  async updateBrand(req: Request, res: Response) {
+  async updateStock(req: Request, res: Response) {
     const { id } = req.params;
-    const { name } = req.body;
+    const { product, ...stockData } = req.body;
+
     try {
-      const data: UpdateResult = await this.brandService.updateBrand(id, name);
+      const data: UpdateResult = await this.stockService.updateStock(
+        id,
+        stockData
+      );
       if (!data.affected) {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }
@@ -96,10 +104,10 @@ export class BrandController {
     }
   }
 
-  async deleteProduct(req: Request, res: Response) {
+  async deleteStock(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const data: DeleteResult = await this.brandService.deleteBrand(id);
+      const data: DeleteResult = await this.stockService.deleteStock(id);
       if (!data.affected) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }

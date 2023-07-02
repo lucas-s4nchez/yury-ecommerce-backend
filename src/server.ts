@@ -13,6 +13,7 @@ import { AuthRoute } from "./auth/auth.routes";
 import fileUpload from "express-fileupload";
 import { v2 as cloudinary } from "cloudinary";
 import { BrandRoute } from "./brand/brand.routes";
+import { StockRoute } from "./stock/stock.routes";
 
 class ServerBootstrap extends ConfigServer {
   public app: express.Application = express();
@@ -65,6 +66,7 @@ class ServerBootstrap extends ConfigServer {
       new CategoryRoute().router,
       new ProductRoute().router,
       new BrandRoute().router,
+      new StockRoute().router,
       new OrderRoute().router,
       new OrderItemRoute().router,
       new AuthRoute().router,
