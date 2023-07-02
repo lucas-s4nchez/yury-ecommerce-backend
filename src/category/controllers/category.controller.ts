@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { CategoryService } from "../services/category.service";
 import { HttpResponse } from "../../shared/response/http.response";
 import { DeleteResult, UpdateResult } from "typeorm";
-import { CategoryDTO } from "../dto/category.dto";
 import { OrderType } from "../../shared/types/shared.types";
 
 export class CategoryController {
@@ -10,6 +9,19 @@ export class CategoryController {
     private readonly categoryService: CategoryService = new CategoryService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
+
+  async categoryList(req: Request, res: Response) {
+    try {
+      const data = await this.categoryService.findAllCategories();
+
+      if (data.length === 0) {
+        return this.httpResponse.NotFound(res, "No hay categorias");
+      }
+      return this.httpResponse.Ok(res, data);
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
   async getCategories(req: Request, res: Response) {
     try {
       let { page = 1, limit = 5, order = OrderType.ASC as any } = req.query;
@@ -29,7 +41,7 @@ export class CategoryController {
         order = OrderType.ASC; // Valor predeterminado si no es válido
       }
 
-      const data = await this.categoryService.findAllCategories(
+      const data = await this.categoryService.findAllCategoriesAndPaginate(
         pageNumber,
         limitNumber,
         order

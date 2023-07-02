@@ -9,7 +9,13 @@ export class CategoryService extends BaseService<CategoryEntity> {
     super(CategoryEntity);
   }
 
-  async findAllCategories(
+  async findAllCategories(): Promise<CategoryEntity[]> {
+    return (await this.execRepository)
+      .createQueryBuilder("categories")
+      .getMany();
+  }
+
+  async findAllCategoriesAndPaginate(
     page: number,
     limit: number,
     order: OrderType

@@ -13,6 +13,11 @@ export class CategoryRoute extends BaseRouter<
   //Definir las rutas de categoria
   routes(): void {
     this.router.get(
+      "/categoryList",
+      // this.middleware.checkJsonWebToken,
+      (req, res) => this.controller.categoryList(req, res)
+    );
+    this.router.get(
       "/categories",
       this.middleware.checkJsonWebToken,
       (req, res) => this.controller.getCategories(req, res)
