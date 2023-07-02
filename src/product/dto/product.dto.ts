@@ -2,7 +2,7 @@ import { IsNotEmpty } from "class-validator";
 import { BaseDTO } from "../../config/base.dto";
 import { CategoryEntity } from "../../category/entities/category.entity";
 import { IsProductUnique } from "../validators/product-unique.validator";
-import { BrandEntity } from "../entities/brand.entity";
+import { BrandEntity } from "../../brand/entities/brand.entity";
 
 export class ProductDTO extends BaseDTO {
   @IsNotEmpty({ message: "El nombre es requerido" })

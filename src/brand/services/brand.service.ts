@@ -9,7 +9,11 @@ export class BrandService extends BaseService<BrandEntity> {
     super(BrandEntity);
   }
 
-  async findAllBrands(
+  async findAllBrands(): Promise<BrandEntity[]> {
+    return (await this.execRepository).createQueryBuilder("brands").getMany();
+  }
+
+  async findAllBrandsAndPaginate(
     page: number,
     limit: number,
     order: OrderType
@@ -43,6 +47,7 @@ export class BrandService extends BaseService<BrandEntity> {
   }
 
   async createBrand(body: BrandDTO): Promise<BrandEntity> {
+    body.name = body.name.toLowerCase().trim();
     return (await this.execRepository).save(body);
   }
 

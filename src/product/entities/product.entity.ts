@@ -10,8 +10,8 @@ import { BaseEntity } from "../../config/base.entity";
 import { CategoryEntity } from "../../category/entities/category.entity";
 import { OrderItemEntity } from "../../order/entities/order-item.entity";
 import { ImageEntity } from "./image.entity";
-import { StockEntity } from "./stock.entity";
-import { BrandEntity } from "./brand.entity";
+import { StockEntity } from "../../stock/entities/stock.entity";
+import { BrandEntity } from "../../brand/entities/brand.entity";
 
 @Entity({ name: "product" })
 export class ProductEntity extends BaseEntity {
