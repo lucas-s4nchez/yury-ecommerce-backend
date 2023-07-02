@@ -5,7 +5,10 @@ import { IsProductUnique } from "../validators/product-unique.validator";
 
 export class StockDTO extends BaseDTO {
   @IsNotEmpty({ message: "La cantidad es requerida" })
-  @IsNumber({ allowNaN: false }, { message: "Tipo de dato incorrecto" })
+  @IsNumber(
+    { allowNaN: false },
+    { message: "La cantidad debe ser un valor numérico" }
+  )
   @Validate((value: number) => value > 0, {
     message: "La cantidad debe ser un número mayor a 0",
   })

@@ -14,6 +14,7 @@ export class ProductService extends BaseService<ProductEntity> {
       .leftJoinAndSelect("products.category", "category")
       .leftJoinAndSelect("products.images", "images")
       .leftJoinAndSelect("products.stock", "stock")
+      .leftJoinAndSelect("products.sizes", "sizes")
       .getManyAndCount();
   }
   async findProductById(id: string): Promise<ProductEntity | null> {
