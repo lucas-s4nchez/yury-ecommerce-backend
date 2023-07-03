@@ -14,3 +14,6 @@ export const NumericRangeRegex = /^[0-9]{8,15}$/;
 
 //letras (mayúsculas o minúsculas) y espacios en blanco.
 export const LettersWithSpacesRegex = /^[a-zA-Z\s]+$/;
+
+//codigo hexadecimal, ejemplo: #ffffff
+export const hexCodeRegex = /^#([0-9A-Fa-f]{6})$/;

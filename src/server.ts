@@ -15,6 +15,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { BrandRoute } from "./brand/brand.routes";
 import { StockRoute } from "./stock/stock.routes";
 import { SizeRoute } from "./size/size.routes";
+import { ColorRoute } from "./colors/color.routes";
 
 class ServerBootstrap extends ConfigServer {
   public app: express.Application = express();
@@ -69,6 +70,7 @@ class ServerBootstrap extends ConfigServer {
       new BrandRoute().router,
       new StockRoute().router,
       new SizeRoute().router,
+      new ColorRoute().router,
       new OrderRoute().router,
       new OrderItemRoute().router,
       new AuthRoute().router,

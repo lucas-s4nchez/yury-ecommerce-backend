@@ -1,18 +1,19 @@
 import { NextFunction, Request, Response } from "express";
 import { SharedMiddleware } from "../../shared/middlewares/shared.middleware";
 import { validate } from "class-validator";
-import { SizeDTO, UpdateSizeDTO } from "../dto/size.dto";
+import { ColorDTO, UpdateColorDTO } from "../dto/color.dto";
 
-export class SizeMiddleware extends SharedMiddleware {
+export class ColorMiddleware extends SharedMiddleware {
   constructor() {
     super();
   }
 
-  async sizeValidator(req: Request, res: Response, next: NextFunction) {
-    const { number } = req.body;
-    const validSize = new SizeDTO();
+  async colorValidator(req: Request, res: Response, next: NextFunction) {
+    const { name, hexCode } = req.body;
+    const validSize = new ColorDTO();
 
-    validSize.number = number;
+    validSize.name = name;
+    validSize.hexCode = hexCode;
 
     validate(validSize).then((err) => {
       if (err.length > 0) {
@@ -28,11 +29,12 @@ export class SizeMiddleware extends SharedMiddleware {
       }
     });
   }
-  async updateSizeValidator(req: Request, res: Response, next: NextFunction) {
-    const { number } = req.body;
-    const validSize = new UpdateSizeDTO();
+  async updateColorValidator(req: Request, res: Response, next: NextFunction) {
+    const { name, hexCode } = req.body;
+    const validSize = new UpdateColorDTO();
 
-    validSize.number = number;
+    validSize.name = name;
+    validSize.hexCode = hexCode;
 
     validate(validSize).then((err) => {
       if (err.length > 0) {

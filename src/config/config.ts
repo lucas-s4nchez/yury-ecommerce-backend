@@ -1,6 +1,5 @@
 import * as dotenv from "dotenv";
-import { Connection, DataSource, DataSourceOptions } from "typeorm";
-import { SnakeNamingStrategy } from "typeorm-naming-strategies";
+import { DataSource } from "typeorm";
 import { AppDataSource } from "./data.source";
 
 export abstract class ConfigServer {

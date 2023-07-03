@@ -15,6 +15,7 @@ import { ImageEntity } from "./image.entity";
 import { StockEntity } from "../../stock/entities/stock.entity";
 import { BrandEntity } from "../../brand/entities/brand.entity";
 import { SizeEntity } from "../../size/entities/size.entity";
+import { ColorEntity } from "../../colors/entities/color.entity";
 
 @Entity({ name: "product" })
 export class ProductEntity extends BaseEntity {
@@ -54,6 +55,20 @@ export class ProductEntity extends BaseEntity {
     },
   })
   sizes!: SizeEntity[];
+
+  @ManyToMany(() => ColorEntity, (color) => color.products)
+  @JoinTable({
+    name: "product_color",
+    joinColumn: {
+      name: "product_id",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "color_id",
+      referencedColumnName: "id",
+    },
+  })
+  colors!: ColorEntity[];
 
   @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.product)
   orderItems!: OrderItemEntity[];
