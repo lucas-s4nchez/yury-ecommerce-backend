@@ -23,6 +23,8 @@ export class UserService extends BaseService<UserEntity> {
     const skipCount = (page - 1) * limit;
     const [users, count] = await (await this.execRepository)
       .createQueryBuilder("users")
+      .leftJoinAndSelect("users.cart", "cart")
+      .leftJoinAndSelect("cart.cartItems", "cartItems")
       .orderBy("users.name", order)
       .skip(skipCount)
       .take(limit)
@@ -48,7 +50,9 @@ export class UserService extends BaseService<UserEntity> {
 
   async findUserById(id: string): Promise<UserEntity | null> {
     return (await this.execRepository)
-      .createQueryBuilder("users")
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.cart", "cart")
+      .leftJoinAndSelect("cart.cartItems", "cartItems")
       .where({ id })
       .getOne();
   }
@@ -81,6 +85,10 @@ export class UserService extends BaseService<UserEntity> {
       { id },
       { role: RoleType.CUSTOMER }
     );
+  }
+
+  async updateUser(id: string, user: UserEntity): Promise<UpdateResult> {
+    return (await this.execRepository).update({ id }, user);
   }
 
   async updateBasicUser(

@@ -22,6 +22,7 @@ export class SharedMiddleware extends ConfigServer {
     next: NextFunction
   ) => {
     // Extraer el token del encabezado
+
     const authorizationHeader = req.header("Authorization");
     if (!authorizationHeader) {
       return this.httpResponse.Unauthorized(res, "No hay token en la petición");
@@ -39,7 +40,6 @@ export class SharedMiddleware extends ConfigServer {
         token,
         this.getEnvironment("JWT_SECRET") || "hola@correo"
       ) as PayloadToken;
-
       //Verificar si el usuario existe
       const user = await this.userService.findUserById(id);
       if (!user) {

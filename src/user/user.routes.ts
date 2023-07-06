@@ -19,7 +19,7 @@ export class UserRoute extends BaseRouter<UserController, UserMiddleware> {
     );
     this.router.post(
       "/users",
-      this.middleware.checkJsonWebToken,
+      // this.middleware.checkJsonWebToken,
       this.middleware.createUserValidator.bind(this.middleware),
       (req, res) => this.controller.createUser(req, res)
     );

@@ -16,6 +16,8 @@ import { BrandRoute } from "./brand/brand.routes";
 import { StockRoute } from "./stock/stock.routes";
 import { SizeRoute } from "./size/size.routes";
 import { ColorRoute } from "./colors/color.routes";
+import { CartRoute } from "./cart/cart.routes";
+import { CartItemRoute } from "./cart/cartItem.routes";
 
 class ServerBootstrap extends ConfigServer {
   public app: express.Application = express();
@@ -74,6 +76,8 @@ class ServerBootstrap extends ConfigServer {
       new OrderRoute().router,
       new OrderItemRoute().router,
       new AuthRoute().router,
+      new CartRoute().router,
+      new CartItemRoute().router,
     ];
   }
 

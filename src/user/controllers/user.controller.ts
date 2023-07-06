@@ -3,10 +3,14 @@ import { UserService } from "../services/user.service";
 import { HttpResponse } from "../../shared/response/http.response";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { OrderType } from "../../shared/types/shared.types";
+import { CartService } from "../../cart/services/cart.service";
+import { CartEntity } from "../../cart/entities/cart.entity";
+import { CartDTO } from "../../cart/dto/cart.dto";
 
 export class UserController {
   constructor(
     private readonly userService: UserService = new UserService(),
+    private readonly cartService: CartService = new CartService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
@@ -40,6 +44,7 @@ export class UserController {
       const [users, count, totalPages] = data;
       return this.httpResponse.Ok(res, { users, count, totalPages });
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }
@@ -60,8 +65,14 @@ export class UserController {
   async createUser(req: Request, res: Response) {
     const { province, city, address, dni, phone, ...userData } = req.body;
     try {
-      const data = await this.userService.createUser(userData);
-      return this.httpResponse.Ok(res, data);
+      const user = await this.userService.createUser(userData);
+      // Crear el carrito y asignarlo al usuario
+      const cart = new CartDTO();
+      cart.user = user;
+      const createdCart = await this.cartService.createCart(cart);
+      user.cart = createdCart;
+      await this.userService.updateUser(user.id, user);
+      return this.httpResponse.Ok(res, "Usuario creado con éxito!");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);

@@ -48,6 +48,7 @@ export class ProductController {
 
       return this.httpResponse.Ok(res, data);
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }

@@ -46,6 +46,18 @@ export class SizeService extends BaseService<SizeEntity> {
       .getOne();
   }
 
+  async findSizeRelatedToProduct(
+    sizeId: string,
+    productId: string
+  ): Promise<SizeEntity | null> {
+    return await (await this.execRepository)
+      .createQueryBuilder("size")
+      .innerJoin("size.products", "product")
+      .where("size.id = :sizeId", { sizeId })
+      .andWhere("product.id = :productId", { productId })
+      .getOne();
+  }
+
   async createSize(body: SizeDTO): Promise<SizeEntity> {
     return (await this.execRepository).save(body);
   }

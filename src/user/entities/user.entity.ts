@@ -1,7 +1,8 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
 import { BaseEntity } from "../../config/base.entity";
 import { OrderEntity } from "../../order/entities/order.entity";
 import { RoleType } from "../types/role.types";
+import { CartEntity } from "../../cart/entities/cart.entity";
 
 @Entity({ name: "user" })
 export class UserEntity extends BaseEntity {
@@ -45,4 +46,8 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => OrderEntity, (order) => order.user)
   orders!: OrderEntity[];
+
+  @OneToOne(() => CartEntity, (cart) => cart.user, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "cart_id" })
+  cart!: CartEntity;
 }

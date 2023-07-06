@@ -16,6 +16,7 @@ import { StockEntity } from "../../stock/entities/stock.entity";
 import { BrandEntity } from "../../brand/entities/brand.entity";
 import { SizeEntity } from "../../size/entities/size.entity";
 import { ColorEntity } from "../../colors/entities/color.entity";
+import { CartItemEntity } from "../../cart/entities/cartItem.entity";
 
 @Entity({ name: "product" })
 export class ProductEntity extends BaseEntity {
@@ -25,7 +26,7 @@ export class ProductEntity extends BaseEntity {
   @Column()
   description!: string;
 
-  @Column()
+  @Column({ type: "float" })
   price!: number;
 
   @ManyToOne(() => CategoryEntity, (category) => category.products)
@@ -72,4 +73,7 @@ export class ProductEntity extends BaseEntity {
 
   @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.product)
   orderItems!: OrderItemEntity[];
+
+  @OneToMany(() => CartItemEntity, (cartItem) => cartItem.product)
+  cartItems!: CartItemEntity[];
 }
