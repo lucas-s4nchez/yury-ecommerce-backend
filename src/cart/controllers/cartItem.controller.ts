@@ -54,30 +54,6 @@ export class CartItemController {
     const cartItemData = req.body;
 
     try {
-      const existingProduct = await this.productService.findProductById(
-        cartItemData.product
-      );
-      if (!existingProduct) {
-        return this.httpResponse.NotFound(res, "No existe este producto");
-      }
-      const existingCart = await this.cartService.findCartById(
-        cartItemData.cart
-      );
-      if (!existingCart) {
-        return this.httpResponse.NotFound(res, "No existe este carrito");
-      }
-      const existingSizeInProduct =
-        await this.sizeService.findSizeRelatedToProduct(
-          cartItemData.size,
-          cartItemData.product
-        );
-      if (!existingSizeInProduct) {
-        return this.httpResponse.NotFound(
-          res,
-          "No existe este talle para este producto"
-        );
-      }
-
       const existingCartItem =
         await this.cartItemService.findCartItemByCartIdAndProductIdAndSizeId(
           cartItemData.cart,
@@ -91,12 +67,12 @@ export class CartItemController {
           existingCartItem
         );
         // Actualizar el cart relacionado
-        await this.cartService.updateCartInfo(existingCart.id);
+        await this.cartService.updateCartInfo(cartItemData.cart);
         return this.httpResponse.Ok(res, data);
       } else {
         const data = await this.cartItemService.createCartItem(cartItemData);
         // Actualizar el cart relacionado
-        await this.cartService.updateCartInfo(existingCart.id);
+        await this.cartService.updateCartInfo(cartItemData.cart);
         return this.httpResponse.Ok(res, data);
       }
     } catch (e) {
