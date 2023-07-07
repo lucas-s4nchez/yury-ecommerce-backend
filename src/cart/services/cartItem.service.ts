@@ -61,7 +61,7 @@ export class CartItemService extends BaseService<CartItemEntity> {
     return (await this.execRepository).save(cartItem);
   }
 
-  async deleteCartItem(id: string): Promise<DeleteResult> {
-    return (await this.execRepository).delete({ id });
+  async deleteCartItem(cartItem: CartItemEntity): Promise<CartItemEntity> {
+    return (await this.execRepository).remove(cartItem);
   }
 }

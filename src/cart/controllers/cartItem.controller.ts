@@ -175,14 +175,21 @@ export class CartItemController {
     const cartId = req.user.cart.id;
 
     try {
-      const data: DeleteResult = await this.cartItemService.deleteCartItem(id);
-      if (!data.affected) {
-        return this.httpResponse.NotFound(res, "Error al eliminar");
+      const existingCartItem = await this.cartItemService.findCartItemById(
+        id,
+        cartId
+      );
+      if (!existingCartItem) {
+        return this.httpResponse.NotFound(
+          res,
+          "No existe este producto en el carrito"
+        );
       }
+      await this.cartItemService.deleteCartItem(existingCartItem);
       // Actualizar el cart relacionado
       await this.cartService.updateCartInfo(cartId);
 
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, "Producto eliminado del carrito");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);

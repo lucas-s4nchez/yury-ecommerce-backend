@@ -1,6 +1,5 @@
-import { DeleteResult, UpdateResult } from "typeorm";
+import { DeleteResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
-import { OrderType } from "../../shared/types/shared.types";
 import { CartEntity } from "../entities/cart.entity";
 import { CartDTO } from "../dto/cart.dto";
 

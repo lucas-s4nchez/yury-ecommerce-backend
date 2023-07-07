@@ -2,6 +2,7 @@ import {
   AfterLoad,
   BeforeInsert,
   BeforeUpdate,
+  BeforeRemove,
   Column,
   Entity,
   JoinColumn,
@@ -39,6 +40,7 @@ export class CartItemEntity extends BaseEntity {
   @AfterLoad()
   @BeforeInsert()
   @BeforeUpdate()
+  @BeforeRemove()
   updateSubtotalPrice(): void {
     this.calculateSubtotalPrice();
   }
