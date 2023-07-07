@@ -195,4 +195,30 @@ export class CartItemController {
       return this.httpResponse.Error(res, e);
     }
   }
+
+  async deleteAllCartItems(req: Request, res: Response) {
+    const cartId = req.user.cart.id;
+
+    try {
+      const existingCart = await this.cartService.findCartById(cartId);
+      if (!existingCart?.cartItems.length) {
+        return this.httpResponse.NotFound(
+          res,
+          "No hay productos en el carrito"
+        );
+      }
+      //eliminar todos los items del carrito
+      await this.cartItemService.deleteAllCartItems(cartId);
+      // Actualizar el cart relacionado
+      await this.cartService.updateCartInfo(cartId);
+
+      return this.httpResponse.Ok(
+        res,
+        "Todos los productos del carrito han sido eliminados"
+      );
+    } catch (e) {
+      console.log(e);
+      return this.httpResponse.Error(res, e);
+    }
+  }
 }
