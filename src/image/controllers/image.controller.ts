@@ -8,10 +8,7 @@ import {
 } from "../helpers/cloudinary.helper";
 import { ImageDTO } from "../dto/image.dto";
 import { ProductService } from "../../product/services/product.service";
-import { validate } from "class-validator";
-import { BaseDTO } from "../../config/base.dto";
 import { plainToClass } from "class-transformer";
-import { ImageEntity } from "../entities/image.entity";
 import { ProductEntity } from "../../product/entities/product.entity";
 import { DeleteResult } from "typeorm";
 

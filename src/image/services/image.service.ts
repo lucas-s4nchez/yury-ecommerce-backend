@@ -1,6 +1,5 @@
 import { DeleteResult, UpdateResult } from "typeorm";
 import { ProductDTO } from "../../product/dto/product.dto";
-import { ImageDTO } from "../dto/image.dto";
 import { ImageEntity } from "../entities/image.entity";
 import { BaseService } from "../../config/base.service";
 
