@@ -2,27 +2,58 @@ import { DeleteResult, UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { ProductDTO } from "../dto/product.dto";
 import { ProductEntity } from "../entities/product.entity";
+import { OrderType } from "../../shared/types/shared.types";
 
 export class ProductService extends BaseService<ProductEntity> {
   constructor() {
     super(ProductEntity);
   }
 
-  async findAllProducts(): Promise<[ProductEntity[], number]> {
+  async findAllProducts(): Promise<ProductEntity[]> {
     return (await this.execRepository)
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
       .leftJoinAndSelect("products.images", "images")
       .leftJoinAndSelect("products.stock", "stock")
       .leftJoinAndSelect("products.sizes", "sizes")
-      .getManyAndCount();
+      .leftJoinAndSelect("products.colors", "colors")
+      .leftJoinAndSelect("products.brand", "brand")
+      .getMany();
   }
+
+  async findAllProductsAndPaginate(
+    page: number,
+    limit: number,
+    order: OrderType
+  ): Promise<[ProductEntity[], number, number]> {
+    const skipCount = (page - 1) * limit;
+    const [products, count] = await (await this.execRepository)
+      .createQueryBuilder("products")
+      .leftJoinAndSelect("products.category", "category")
+      .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.stock", "stock")
+      .leftJoinAndSelect("products.sizes", "sizes")
+      .leftJoinAndSelect("products.colors", "colors")
+      .leftJoinAndSelect("products.brand", "brand")
+      .orderBy("products.name", order)
+      .skip(skipCount)
+      .take(limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(count / limit);
+
+    return [products, count, totalPages];
+  }
+
   async findProductById(id: string): Promise<ProductEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
       .leftJoinAndSelect("products.images", "images")
       .leftJoinAndSelect("products.stock", "stock")
+      .leftJoinAndSelect("products.sizes", "sizes")
+      .leftJoinAndSelect("products.colors", "colors")
+      .leftJoinAndSelect("products.brand", "brand")
       .where({ id })
       .getOne();
   }
@@ -30,6 +61,12 @@ export class ProductService extends BaseService<ProductEntity> {
   async findProductByName(name: string): Promise<ProductEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("products")
+      .leftJoinAndSelect("products.category", "category")
+      .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.stock", "stock")
+      .leftJoinAndSelect("products.sizes", "sizes")
+      .leftJoinAndSelect("products.colors", "colors")
+      .leftJoinAndSelect("products.brand", "brand")
       .where({ name })
       .getOne();
   }

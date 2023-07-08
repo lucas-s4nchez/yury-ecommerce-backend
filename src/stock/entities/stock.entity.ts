@@ -7,7 +7,9 @@ export class StockEntity extends BaseEntity {
   @Column()
   quantity!: number;
 
-  @OneToOne(() => ProductEntity, (product) => product.stock)
+  @OneToOne(() => ProductEntity, (product) => product.stock, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "product_id" })
   product!: ProductEntity;
 }

@@ -29,11 +29,21 @@ export class ProductEntity extends BaseEntity {
   @Column({ type: "float" })
   price!: number;
 
-  @ManyToOne(() => CategoryEntity, (category) => category.products)
+  @Column({ type: "boolean", default: false })
+  featured!: boolean;
+
+  @Column({ type: "boolean", default: false })
+  available!: boolean;
+
+  @ManyToOne(() => CategoryEntity, (category) => category.products, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "category_id" })
   category!: CategoryEntity;
 
-  @ManyToOne(() => BrandEntity, (brand) => brand.products)
+  @ManyToOne(() => BrandEntity, (brand) => brand.products, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "brand_id" })
   brand!: BrandEntity;
 

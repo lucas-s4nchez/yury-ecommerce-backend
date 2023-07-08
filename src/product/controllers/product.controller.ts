@@ -4,6 +4,7 @@ import { DeleteResult, UpdateResult } from "typeorm";
 import { ProductService } from "../services/product.service";
 import { deleteImageFromCloudinary } from "../../image/helpers/cloudinary.helper";
 import { ImageService } from "../../image/services/image.service";
+import { OrderType } from "../../shared/types/shared.types";
 
 export class ProductController {
   constructor(
@@ -12,16 +13,51 @@ export class ProductController {
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
-  async getProducts(req: Request, res: Response) {
+  async productList(req: Request, res: Response) {
     try {
       const data = await this.productService.findAllProducts();
 
-      if (data[0].length === 0) {
+      if (data.length === 0) {
         return this.httpResponse.NotFound(res, "No hay productos");
       }
 
       const [products, count] = data;
       return this.httpResponse.Ok(res, { products, count });
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async getProducts(req: Request, res: Response) {
+    try {
+      let { page = 1, limit = 8, order = OrderType.ASC as any } = req.query;
+      let pageNumber = parseInt(page as string, 10);
+      let limitNumber = parseInt(limit as string, 10);
+
+      // Validar si los valores son numéricos y mayores a 0
+      if (isNaN(pageNumber) || pageNumber <= 0) {
+        pageNumber = 1; // Valor predeterminado si no es un número válido
+      }
+      if (isNaN(limitNumber) || limitNumber <= 0) {
+        limitNumber = 8; // Valor predeterminado si no es un número válido
+      }
+
+      // Validar el valor de order
+      if (!(order in OrderType)) {
+        order = OrderType.ASC; // Valor predeterminado si no es válido
+      }
+
+      const data = await this.productService.findAllProductsAndPaginate(
+        pageNumber,
+        limitNumber,
+        order
+      );
+
+      if (data[0].length === 0) {
+        return this.httpResponse.NotFound(res, "No hay productos");
+      }
+      const [products, count, totalPages] = data;
+      return this.httpResponse.Ok(res, { products, count, totalPages });
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }
