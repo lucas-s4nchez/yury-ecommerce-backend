@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { ProductService } from "../services/product.service";
-import { deleteImageFromCloudinary } from "../helpers/cloudinary.helper";
-import { ImageService } from "../services/image.service";
+import { deleteImageFromCloudinary } from "../../image/helpers/cloudinary.helper";
+import { ImageService } from "../../image/services/image.service";
 
 export class ProductController {
   constructor(
@@ -75,8 +75,7 @@ export class ProductController {
     const { id } = req.params;
     try {
       // Obtener todas las imágenes del producto
-      const images =
-        await this.productImageService.findAllProductImageByProductId(id);
+      const images = await this.productImageService.findImagesByProductId(id);
       if (images && images?.length !== 0) {
         // Eliminar cada imagen en Cloudinary
         for (const image of images) {

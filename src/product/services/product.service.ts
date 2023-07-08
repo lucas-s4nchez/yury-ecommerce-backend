@@ -34,6 +34,17 @@ export class ProductService extends BaseService<ProductEntity> {
       .getOne();
   }
 
+  async getImageCount(productId: string): Promise<number> {
+    const query = await (await this.execRepository)
+      .createQueryBuilder("product")
+      .leftJoin("product.images", "images")
+      .where("product.id = :productId", { productId })
+      .select("COUNT(images.id)", "count")
+      .getRawOne();
+
+    return parseInt(query.count, 10) || 0;
+  }
+
   async createProduct(body: ProductDTO): Promise<ProductEntity> {
     return (await this.execRepository).save(body);
   }
