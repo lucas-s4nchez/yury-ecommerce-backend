@@ -31,6 +31,12 @@ export class ProductRoute extends BaseRouter<
       this.middleware.productUpdateValidator.bind(this.middleware),
       (req, res) => this.controller.updateProduct(req, res)
     );
+    this.router.put("/products/:id/isAvailable", (req, res) =>
+      this.controller.productIsAvailable(req, res)
+    );
+    this.router.put("/products/:id/isNotAvailable", (req, res) =>
+      this.controller.productIsNotAvailable(req, res)
+    );
     this.router.delete("/products/:id", (req, res) =>
       this.controller.deleteProduct(req, res)
     );

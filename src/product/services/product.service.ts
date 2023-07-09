@@ -113,6 +113,22 @@ export class ProductService extends BaseService<ProductEntity> {
     // Guardar los cambios en la base de datos
     const updateResult = (await this.execRepository).save(existingProduct);
     return updateResult;
-    // return await (await this.execRepository).update(id, infoUpdate);
+  }
+  async productIsAvailable(
+    id: string,
+    isAvailable: boolean
+  ): Promise<ProductEntity> {
+    // Obtener el producto existente
+    const existingProduct = await this.findProductById(id);
+    if (!existingProduct) {
+      throw new Error("Producto no encontrado");
+    }
+
+    // Actualizar la propiedad "available" del producto
+    existingProduct.available = isAvailable;
+
+    // Guardar los cambios en la base de datos
+    const updateResult = (await this.execRepository).save(existingProduct);
+    return updateResult;
   }
 }

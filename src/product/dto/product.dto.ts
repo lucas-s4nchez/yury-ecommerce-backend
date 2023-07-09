@@ -101,3 +101,8 @@ export class UpdateProductDTO extends BaseDTO {
   @IsValidColor()
   colors!: ColorEntity[];
 }
+export class AvailableProductDTO extends BaseDTO {
+  @IsBoolean({ message: "El campo 'available' debe ser un booleano" })
+  @IsNotEmpty({ message: "El campo 'available' es requerido" })
+  available!: boolean;
+}

@@ -89,6 +89,55 @@ export class ProductController {
     }
   }
 
+  async productIsAvailable(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      const existingProduct = await this.productService.findProductById(id);
+      if (!existingProduct) {
+        return this.httpResponse.NotFound(res, "Producto no encontrada");
+      }
+
+      if (!existingProduct.stock) {
+        return this.httpResponse.BadRequest(
+          res,
+          "El producto debe tener 'stock' registrado"
+        );
+      }
+      if (!existingProduct.images.length) {
+        return this.httpResponse.BadRequest(
+          res,
+          `El producto debe al menos una imagen`
+        );
+      }
+      const data = await this.productService.productIsAvailable(id, true);
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(res, data);
+    } catch (e) {
+      console.log(e);
+      return this.httpResponse.Error(res, e);
+    }
+  }
+  async productIsNotAvailable(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      const existingProduct = await this.productService.findProductById(id);
+      if (!existingProduct) {
+        return this.httpResponse.NotFound(res, "Producto no encontrada");
+      }
+
+      const data = await this.productService.productIsAvailable(id, false);
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(res, data);
+    } catch (e) {
+      console.log(e);
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
   async updateProduct(req: Request, res: Response) {
     const { id } = req.params;
     const { available, ...productData } = req.body;
