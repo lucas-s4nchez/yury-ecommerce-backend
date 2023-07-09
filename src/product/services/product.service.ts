@@ -1,6 +1,6 @@
 import { DeleteResult, UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
-import { ProductDTO } from "../dto/product.dto";
+import { ProductDTO, UpdateProductDTO } from "../dto/product.dto";
 import { ProductEntity } from "../entities/product.entity";
 import { OrderType } from "../../shared/types/shared.types";
 
@@ -90,8 +90,29 @@ export class ProductService extends BaseService<ProductEntity> {
   }
   async updateProduct(
     id: string,
-    infoUpdate: ProductDTO
-  ): Promise<UpdateResult> {
-    return await (await this.execRepository).update(id, infoUpdate);
+    infoUpdate: UpdateProductDTO
+  ): Promise<ProductEntity> {
+    // Obtener el producto existente
+    const existingProduct = await this.findProductById(id);
+    if (!existingProduct) {
+      throw new Error("Producto no encontrado");
+    }
+
+    // Actualizar las propiedades directas del producto
+    existingProduct.name = infoUpdate.name;
+    existingProduct.description = infoUpdate.description;
+    existingProduct.price = infoUpdate.price;
+    existingProduct.featured = infoUpdate.featured || existingProduct.featured;
+    existingProduct.category = infoUpdate.category;
+    existingProduct.brand = infoUpdate.brand;
+    // Actualizar la relación `sizes`
+    existingProduct.sizes = infoUpdate.sizes;
+    // Actualizar la relación `colors`
+    existingProduct.colors = infoUpdate.colors;
+
+    // Guardar los cambios en la base de datos
+    const updateResult = (await this.execRepository).save(existingProduct);
+    return updateResult;
+    // return await (await this.execRepository).update(id, infoUpdate);
   }
 }

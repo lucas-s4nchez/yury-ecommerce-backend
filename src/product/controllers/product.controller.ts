@@ -77,7 +77,7 @@ export class ProductController {
   }
 
   async createProduct(req: Request, res: Response) {
-    const productData = req.body;
+    const { available, ...productData } = req.body;
 
     try {
       const data = await this.productService.createProduct(productData);
@@ -91,13 +91,29 @@ export class ProductController {
 
   async updateProduct(req: Request, res: Response) {
     const { id } = req.params;
-    const { files, ...productData } = req.body;
+    const { available, ...productData } = req.body;
     try {
-      const data: UpdateResult = await this.productService.updateProduct(
-        id,
-        productData
-      );
-      if (!data.affected) {
+      const existingProduct = await this.productService.findProductById(id);
+      if (!existingProduct) {
+        return this.httpResponse.NotFound(res, "Producto no encontrada");
+      }
+
+      // Verificar y actualizar el nombre del producto si es diferente
+      if (productData.name !== existingProduct.name) {
+        const isNameTaken = await this.productService.findProductByName(
+          productData.name
+        );
+        if (isNameTaken) {
+          return this.httpResponse.BadRequest(res, [
+            {
+              property: "name",
+              errors: [`El producto '${productData.name}' ya está registrado`],
+            },
+          ]);
+        }
+      }
+      const data = await this.productService.updateProduct(id, productData);
+      if (!data) {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }
       return this.httpResponse.Ok(res, data);

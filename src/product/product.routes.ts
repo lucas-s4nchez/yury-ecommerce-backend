@@ -26,8 +26,10 @@ export class ProductRoute extends BaseRouter<
       this.middleware.productValidator.bind(this.middleware),
       (req, res) => this.controller.createProduct(req, res)
     );
-    this.router.put("/products/:id", (req, res) =>
-      this.controller.updateProduct(req, res)
+    this.router.put(
+      "/products/:id",
+      this.middleware.productUpdateValidator.bind(this.middleware),
+      (req, res) => this.controller.updateProduct(req, res)
     );
     this.router.delete("/products/:id", (req, res) =>
       this.controller.deleteProduct(req, res)

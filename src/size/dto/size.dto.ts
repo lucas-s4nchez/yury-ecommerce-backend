@@ -22,5 +22,6 @@ export class UpdateSizeDTO extends BaseDTO {
     { allowNaN: false, allowInfinity: false, maxDecimalPlaces: 1 },
     { message: "El número debe ser un valor numérico" }
   )
+  @Min(1, { message: "El número debe ser mayor o igual a 1" })
   number!: number;
 }
