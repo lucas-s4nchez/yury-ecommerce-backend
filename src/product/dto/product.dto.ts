@@ -1,10 +1,25 @@
-import { ArrayNotEmpty, IsNotEmpty, ValidateNested } from "class-validator";
+import {
+  ArrayNotEmpty,
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsUUID,
+  Min,
+  Validate,
+  ValidateNested,
+  min,
+} from "class-validator";
 import { BaseDTO } from "../../config/base.dto";
 import { CategoryEntity } from "../../category/entities/category.entity";
 import { IsProductUnique } from "../validators/product-unique.validator";
 import { BrandEntity } from "../../brand/entities/brand.entity";
 import { SizeDTO } from "../../size/dto/size.dto";
+import { Type } from "class-transformer";
 import { SizeEntity } from "../../size/entities/size.entity";
+import { ColorEntity } from "../../colors/entities/color.entity";
+import { IsValidSize } from "../validators/valid-size.validator";
+import { IsValidColor } from "../validators/valid-color.validator";
 
 export class ProductDTO extends BaseDTO {
   @IsNotEmpty({ message: "El nombre es requerido" })
@@ -15,7 +30,20 @@ export class ProductDTO extends BaseDTO {
   description!: string;
 
   @IsNotEmpty({ message: "El precio es requerido" })
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false, maxDecimalPlaces: 2 },
+    { message: "El precio debe ser un número" }
+  )
+  @Min(1, { message: "El precio mínimo debe ser de $1" })
   price!: number;
+
+  @IsBoolean({ message: "El campo 'featured' debe ser un booleano" })
+  @IsOptional()
+  featured?: boolean;
+
+  @IsBoolean({ message: "El campo 'available' debe ser un booleano" })
+  @IsOptional()
+  available?: boolean;
 
   @IsNotEmpty({ message: "La marca es requerida" })
   brand!: BrandEntity;
@@ -23,7 +51,15 @@ export class ProductDTO extends BaseDTO {
   @IsNotEmpty({ message: "La categoría es requerida" })
   category!: CategoryEntity;
 
-  @ArrayNotEmpty({ message: "Se requiere al menos un talle" })
-  @ValidateNested({ each: true })
-  sizes!: SizeDTO[];
+  @ValidateNested({ each: true, message: "Debe ser un array de talles" })
+  @Type(() => SizeEntity)
+  @ArrayNotEmpty({ message: "Debe seleccionar al menos un talle" })
+  @IsValidSize()
+  sizes!: SizeEntity[];
+
+  @ValidateNested({ each: true, message: "Debe ser un array de colores" })
+  @Type(() => ColorEntity)
+  @ArrayNotEmpty({ message: "Debe seleccionar al menos un color" })
+  @IsValidColor()
+  colors!: ColorEntity[];
 }

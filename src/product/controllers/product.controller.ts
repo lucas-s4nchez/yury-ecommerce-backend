@@ -77,7 +77,7 @@ export class ProductController {
   }
 
   async createProduct(req: Request, res: Response) {
-    const { files, ...productData } = req.body;
+    const productData = req.body;
 
     try {
       const data = await this.productService.createProduct(productData);
