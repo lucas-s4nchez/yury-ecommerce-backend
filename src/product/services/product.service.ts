@@ -8,18 +8,6 @@ export class ProductService extends BaseService<ProductEntity> {
     super(ProductEntity);
   }
 
-  async findAllProducts(): Promise<ProductEntity[]> {
-    return (await this.execRepository)
-      .createQueryBuilder("products")
-      .leftJoinAndSelect("products.category", "category")
-      .leftJoinAndSelect("products.images", "images")
-      .leftJoinAndSelect("products.stock", "stock")
-      .leftJoinAndSelect("products.sizes", "sizes")
-      .leftJoinAndSelect("products.colors", "colors")
-      .leftJoinAndSelect("products.brand", "brand")
-      .getMany();
-  }
-
   async findAllProductsAndPaginate(
     page: number,
     limit: number,
@@ -37,6 +25,32 @@ export class ProductService extends BaseService<ProductEntity> {
       .orderBy("products.name", order)
       .skip(skipCount)
       .take(limit)
+      .where({ state: true })
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(count / limit);
+
+    return [products, count, totalPages];
+  }
+
+  async findAvailableProductsAndPaginate(
+    page: number,
+    limit: number,
+    order: OrderType
+  ): Promise<[ProductEntity[], number, number]> {
+    const skipCount = (page - 1) * limit;
+    const [products, count] = await (await this.execRepository)
+      .createQueryBuilder("products")
+      .leftJoinAndSelect("products.category", "category")
+      .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.stock", "stock")
+      .leftJoinAndSelect("products.sizes", "sizes")
+      .leftJoinAndSelect("products.colors", "colors")
+      .leftJoinAndSelect("products.brand", "brand")
+      .orderBy("products.name", order)
+      .skip(skipCount)
+      .take(limit)
+      .where({ state: true, available: true })
       .getManyAndCount();
 
     const totalPages = Math.ceil(count / limit);
@@ -53,7 +67,20 @@ export class ProductService extends BaseService<ProductEntity> {
       .leftJoinAndSelect("products.sizes", "sizes")
       .leftJoinAndSelect("products.colors", "colors")
       .leftJoinAndSelect("products.brand", "brand")
-      .where({ id })
+      .where({ id, state: true })
+      .getOne();
+  }
+
+  async findAvailableProductById(id: string): Promise<ProductEntity | null> {
+    return (await this.execRepository)
+      .createQueryBuilder("products")
+      .leftJoinAndSelect("products.category", "category")
+      .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.stock", "stock")
+      .leftJoinAndSelect("products.sizes", "sizes")
+      .leftJoinAndSelect("products.colors", "colors")
+      .leftJoinAndSelect("products.brand", "brand")
+      .where({ id, state: true, available: true })
       .getOne();
   }
 
@@ -67,7 +94,7 @@ export class ProductService extends BaseService<ProductEntity> {
       .leftJoinAndSelect("product.colors", "colors")
       .leftJoinAndSelect("product.brand", "brand")
       .leftJoinAndSelect("product.cartItems", "cartItems")
-      .where({ id })
+      .where({ id, state: true })
       .getOne();
   }
 
@@ -80,19 +107,8 @@ export class ProductService extends BaseService<ProductEntity> {
       .leftJoinAndSelect("products.sizes", "sizes")
       .leftJoinAndSelect("products.colors", "colors")
       .leftJoinAndSelect("products.brand", "brand")
-      .where({ name })
+      .where({ name, state: true })
       .getOne();
-  }
-
-  async getImageCount(productId: string): Promise<number> {
-    const query = await (await this.execRepository)
-      .createQueryBuilder("product")
-      .leftJoin("product.images", "images")
-      .where("product.id = :productId", { productId })
-      .select("COUNT(images.id)", "count")
-      .getRawOne();
-
-    return parseInt(query.count, 10) || 0;
   }
 
   async createProduct(body: ProductDTO): Promise<ProductEntity> {

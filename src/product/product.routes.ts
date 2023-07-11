@@ -12,14 +12,17 @@ export class ProductRoute extends BaseRouter<
 
   //Definir las rutas de producto
   routes(): void {
-    this.router.get("/productList", (req, res) =>
-      this.controller.productList(req, res)
+    this.router.get("/allProducts", (req, res) =>
+      this.controller.getAllProducts(req, res)
     );
     this.router.get("/products", (req, res) =>
-      this.controller.getProducts(req, res)
+      this.controller.getAvailableProducts(req, res)
+    );
+    this.router.get("/allProducts/:id", (req, res) =>
+      this.controller.getProductById(req, res)
     );
     this.router.get("/products/:id", (req, res) =>
-      this.controller.getProductById(req, res)
+      this.controller.getAvailableProductById(req, res)
     );
     this.router.post(
       "/products",

@@ -20,7 +20,7 @@ import { ImageEntity } from "../../image/entities/image.entity";
 
 @Entity({ name: "product" })
 export class ProductEntity extends BaseEntity {
-  @Column({ unique: true })
+  @Column()
   name!: string;
 
   @Column()
