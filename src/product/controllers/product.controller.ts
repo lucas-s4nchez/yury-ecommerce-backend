@@ -119,7 +119,7 @@ export class ProductController {
   }
 
   async createProduct(req: Request, res: Response) {
-    const { available, ...productData } = req.body;
+    const { available, state, ...productData } = req.body;
 
     try {
       const data = await this.productService.createProduct(productData);
@@ -183,7 +183,7 @@ export class ProductController {
 
   async updateProduct(req: Request, res: Response) {
     const { id } = req.params;
-    const { available, ...productData } = req.body;
+    const { available, state, ...productData } = req.body;
     try {
       const existingProduct = await this.productService.findProductById(id);
       if (!existingProduct) {
