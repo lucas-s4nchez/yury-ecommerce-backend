@@ -89,8 +89,8 @@ export class ImageController {
     const { id } = req.params;
 
     try {
-      const image = await this.imageService.findImagesById(id);
-      if (!image) {
+      const exsitingImage = await this.imageService.findImagesById(id);
+      if (!exsitingImage) {
         return this.httpResponse.NotFound(res, "Imagen no encontrada");
       }
 

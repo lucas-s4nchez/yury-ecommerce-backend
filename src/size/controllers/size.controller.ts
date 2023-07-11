@@ -122,12 +122,16 @@ export class SizeController {
   async deleteSize(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const data: DeleteResult = await this.sizeService.deleteSize(id);
-      if (!data.affected) {
+      const existingSize = await this.sizeService.findSizeById(id);
+      if (!existingSize) {
+        return this.httpResponse.NotFound(res, "Talle no encontrado");
+      }
+      const deletedSize = await this.sizeService.deleteSize(id);
+      if (!deletedSize) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
 
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, "Talle eliminado correctamente");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);

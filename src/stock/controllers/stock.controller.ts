@@ -107,12 +107,16 @@ export class StockController {
   async deleteStock(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const data: DeleteResult = await this.stockService.deleteStock(id);
-      if (!data.affected) {
+      const existingStock = await this.stockService.findStockById(id);
+      if (!existingStock) {
+        return this.httpResponse.NotFound(res, "Stock no encontrado");
+      }
+      const deletedStock = await this.stockService.deleteStock(id);
+      if (!deletedStock) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
 
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, deletedStock);
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);
