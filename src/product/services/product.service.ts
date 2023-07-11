@@ -1,4 +1,3 @@
-import { DeleteResult, UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { ProductDTO, UpdateProductDTO } from "../dto/product.dto";
 import { ProductEntity } from "../entities/product.entity";
@@ -58,6 +57,20 @@ export class ProductService extends BaseService<ProductEntity> {
       .getOne();
   }
 
+  async findProductByIdForDelete(id: string): Promise<ProductEntity | null> {
+    return (await this.execRepository)
+      .createQueryBuilder("product")
+      .leftJoinAndSelect("product.category", "category")
+      .leftJoinAndSelect("product.images", "images")
+      .leftJoinAndSelect("product.stock", "stock")
+      .leftJoinAndSelect("product.sizes", "sizes")
+      .leftJoinAndSelect("product.colors", "colors")
+      .leftJoinAndSelect("product.brand", "brand")
+      .leftJoinAndSelect("product.cartItems", "cartItems")
+      .where({ id })
+      .getOne();
+  }
+
   async findProductByName(name: string): Promise<ProductEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("products")
@@ -85,9 +98,7 @@ export class ProductService extends BaseService<ProductEntity> {
   async createProduct(body: ProductDTO): Promise<ProductEntity> {
     return (await this.execRepository).save(body);
   }
-  async deleteProduct(id: string): Promise<DeleteResult> {
-    return (await this.execRepository).delete({ id });
-  }
+
   async updateProduct(
     id: string,
     infoUpdate: UpdateProductDTO
@@ -114,6 +125,7 @@ export class ProductService extends BaseService<ProductEntity> {
     const updateResult = (await this.execRepository).save(existingProduct);
     return updateResult;
   }
+
   async productIsAvailable(
     id: string,
     isAvailable: boolean
@@ -126,6 +138,21 @@ export class ProductService extends BaseService<ProductEntity> {
 
     // Actualizar la propiedad "available" del producto
     existingProduct.available = isAvailable;
+
+    // Guardar los cambios en la base de datos
+    const updateResult = (await this.execRepository).save(existingProduct);
+    return updateResult;
+  }
+
+  async deleteProduct(id: string): Promise<ProductEntity | null> {
+    // Obtener el producto existente
+    const existingProduct = await this.findProductByIdForDelete(id);
+    if (!existingProduct) {
+      return null;
+    }
+
+    // Actualizar el estado del producto
+    existingProduct.state = false;
 
     // Guardar los cambios en la base de datos
     const updateResult = (await this.execRepository).save(existingProduct);

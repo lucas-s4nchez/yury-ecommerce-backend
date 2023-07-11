@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -13,4 +14,7 @@ export abstract class BaseEntity {
 
   @UpdateDateColumn({ name: "updated_at", type: "timestamp" })
   updatedAt!: Date;
+
+  @Column({ type: "boolean", default: true })
+  state!: boolean;
 }

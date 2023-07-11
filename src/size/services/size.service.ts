@@ -66,7 +66,18 @@ export class SizeService extends BaseService<SizeEntity> {
     return (await this.execRepository).update({ id }, body);
   }
 
-  async deleteSize(id: string): Promise<DeleteResult> {
-    return (await this.execRepository).delete({ id });
+  async deleteSize(id: string): Promise<SizeEntity | null> {
+    // Obtener el talle existente
+    const existingSize = await this.findSizeById(id);
+    if (!existingSize) {
+      return null;
+    }
+
+    // Actualizar el estado del talle
+    existingSize.state = false;
+
+    // Guardar los cambios en la base de datos
+    const updateResult = (await this.execRepository).save(existingSize);
+    return updateResult;
   }
 }

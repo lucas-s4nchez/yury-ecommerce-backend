@@ -1,15 +1,18 @@
 import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
-import { DeleteResult, UpdateResult } from "typeorm";
 import { ProductService } from "../services/product.service";
 import { deleteImageFromCloudinary } from "../../image/helpers/cloudinary.helper";
 import { ImageService } from "../../image/services/image.service";
 import { OrderType } from "../../shared/types/shared.types";
+import { StockService } from "../../stock/services/stock.service";
+import { CartItemService } from "../../cart/services/cartItem.service";
 
 export class ProductController {
   constructor(
     private readonly productService: ProductService = new ProductService(),
-    private readonly productImageService: ImageService = new ImageService(),
+    private readonly imageService: ImageService = new ImageService(),
+    private readonly stockService: StockService = new StockService(),
+    private readonly cartItemService: CartItemService = new CartItemService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
@@ -94,7 +97,7 @@ export class ProductController {
     try {
       const existingProduct = await this.productService.findProductById(id);
       if (!existingProduct) {
-        return this.httpResponse.NotFound(res, "Producto no encontrada");
+        return this.httpResponse.NotFound(res, "Producto no encontrado");
       }
 
       if (!existingProduct.stock) {
@@ -119,12 +122,13 @@ export class ProductController {
       return this.httpResponse.Error(res, e);
     }
   }
+
   async productIsNotAvailable(req: Request, res: Response) {
     const { id } = req.params;
     try {
       const existingProduct = await this.productService.findProductById(id);
       if (!existingProduct) {
-        return this.httpResponse.NotFound(res, "Producto no encontrada");
+        return this.httpResponse.NotFound(res, "Producto no encontrado");
       }
 
       const data = await this.productService.productIsAvailable(id, false);
@@ -144,7 +148,7 @@ export class ProductController {
     try {
       const existingProduct = await this.productService.findProductById(id);
       if (!existingProduct) {
-        return this.httpResponse.NotFound(res, "Producto no encontrada");
+        return this.httpResponse.NotFound(res, "Producto no encontrado");
       }
 
       // Verificar y actualizar el nombre del producto si es diferente
@@ -175,23 +179,35 @@ export class ProductController {
   async deleteProduct(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      // Obtener todas las imágenes del producto
-      const images = await this.productImageService.findImagesByProductId(id);
-      if (images && images?.length !== 0) {
-        // Eliminar cada imagen en Cloudinary
-        for (const image of images) {
-          await deleteImageFromCloudinary(image.public_id);
+      //Verificar si existe el producto
+      const existingProduct = await this.productService.findProductById(id);
+      if (!existingProduct) {
+        return this.httpResponse.NotFound(res, "Producto no encontrado");
+      }
+      // Eliminar el producto
+      const deletedProduct = await this.productService.deleteProduct(id);
+      if (!deletedProduct) {
+        return this.httpResponse.NotFound(res, "Error al eliminar");
+      }
+      // Eliminar las imágenes relacionadas
+      const images = deletedProduct.images;
+      for (const image of images) {
+        await this.imageService.deleteImage(image.id);
+      }
+      // Eliminar el stock relacionado
+      const stock = deletedProduct.stock;
+      if (stock) {
+        await this.stockService.deleteStock(stock.id);
+      }
+      // Eliminar los items del carrito relacionados al producto
+      const cartItems = deletedProduct.cartItems;
+      if (cartItems) {
+        for (const cartItem of cartItems) {
+          await this.cartItemService.deleteCartItem(cartItem);
         }
       }
 
-      // Eliminar el producto
-      const deleteResult: DeleteResult =
-        await this.productService.deleteProduct(id);
-      if (!deleteResult.affected) {
-        return this.httpResponse.NotFound(res, "Error al eliminar");
-      }
-
-      return this.httpResponse.Ok(res, deleteResult);
+      return this.httpResponse.Ok(res, deletedProduct);
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);

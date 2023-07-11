@@ -26,8 +26,19 @@ export class ImageService extends BaseService<ImageEntity> {
     return (await this.execRepository).save(body);
   }
 
-  async deleteImage(id: string): Promise<DeleteResult> {
-    return (await this.execRepository).delete({ id });
+  async deleteImage(id: string): Promise<ImageEntity | null> {
+    // Obtener la imagen existente
+    const existingImage = await this.findImagesById(id);
+    if (!existingImage) {
+      return null;
+    }
+
+    // Actualizar el estado de la imagen
+    existingImage.state = false;
+
+    // Guardar los cambios en la base de datos
+    const updateResult = (await this.execRepository).save(existingImage);
+    return updateResult;
   }
 
   async deleteAllImagesByProductId(id: string): Promise<DeleteResult> {

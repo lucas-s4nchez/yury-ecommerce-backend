@@ -20,6 +20,9 @@ export class ImageEntity {
   @UpdateDateColumn({ name: "updated_at", type: "timestamp" })
   updatedAt!: Date;
 
+  @Column({ type: "boolean", default: true })
+  state!: boolean;
+
   @Column()
   url!: string;
 

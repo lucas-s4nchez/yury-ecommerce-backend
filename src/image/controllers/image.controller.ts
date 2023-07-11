@@ -57,17 +57,12 @@ export class ImageController {
       //verificar que exista este producto
       const product = await this.productService.findProductById(productId);
       if (!product) {
-        return this.httpResponse.BadRequest(res, [
-          {
-            property: "product",
-            errors: [`No existe este producto`],
-          },
-        ]);
+        return this.httpResponse.BadRequest(res, "Producto no encontrado");
       }
       if (product.images.length >= 4) {
         return this.httpResponse.BadRequest(
           res,
-          "El producto tiene un máximo de 4 imágenes permitidas"
+          "Los productos tienen un máximo de 4 imágenes permitidas"
         );
       }
       //Subir la imagen a cloudinary
@@ -95,16 +90,16 @@ export class ImageController {
 
     try {
       const image = await this.imageService.findImagesById(id);
+      if (!image) {
+        return this.httpResponse.NotFound(res, "Imagen no encontrada");
+      }
+
       //Eiminar de base de datos
-      const data: DeleteResult = await this.imageService.deleteImage(id);
-      if (!data.affected) {
+      const deletedImage = await this.imageService.deleteImage(id);
+      if (!deletedImage) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
 
-      if (image) {
-        // Eliminar imagen en Cloudinary
-        await deleteImageFromCloudinary(image.public_id);
-      }
       return this.httpResponse.Ok(res, "Imagen eliminada correctamente");
     } catch (e) {
       return this.httpResponse.Error(res, e);
