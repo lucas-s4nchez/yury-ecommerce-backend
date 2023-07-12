@@ -2,9 +2,16 @@ import { BaseService } from "../../config/base.service";
 import { ProductDTO, UpdateProductDTO } from "../dto/product.dto";
 import { ProductEntity } from "../entities/product.entity";
 import { OrderType } from "../../shared/types/shared.types";
+import { ImageService } from "../../image/services/image.service";
+import { StockService } from "../../stock/services/stock.service";
+import { CartItemService } from "../../cart/services/cartItem.service";
 
 export class ProductService extends BaseService<ProductEntity> {
-  constructor() {
+  constructor(
+    private imageService: ImageService = new ImageService(),
+    private stockService: StockService = new StockService(),
+    private cartItemService: CartItemService = new CartItemService()
+  ) {
     super(ProductEntity);
   }
 
@@ -160,11 +167,33 @@ export class ProductService extends BaseService<ProductEntity> {
     return updateResult;
   }
 
-  async deleteProduct(id: string): Promise<ProductEntity | null> {
+  async deleteProductAndRelatedEntities(
+    id: string
+  ): Promise<ProductEntity | null> {
     // Obtener el producto existente
     const existingProduct = await this.findProductByIdForDelete(id);
     if (!existingProduct) {
       return null;
+    }
+
+    // Eliminar las imágenes relacionadas
+    const images = existingProduct.images;
+    for (const image of images) {
+      await this.imageService.deleteImage(image.id);
+    }
+
+    // Eliminar el stock relacionado
+    const stock = existingProduct.stock;
+    if (stock) {
+      await this.stockService.deleteStock(stock.id);
+    }
+
+    // Eliminar los items del carrito relacionados al producto
+    const cartItems = existingProduct.cartItems;
+    if (cartItems) {
+      for (const cartItem of cartItems) {
+        await this.cartItemService.deleteCartItem(cartItem);
+      }
     }
 
     // Actualizar el estado del producto

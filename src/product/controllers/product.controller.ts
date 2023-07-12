@@ -1,18 +1,11 @@
 import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { ProductService } from "../services/product.service";
-import { deleteImageFromCloudinary } from "../../image/helpers/cloudinary.helper";
-import { ImageService } from "../../image/services/image.service";
 import { OrderType } from "../../shared/types/shared.types";
-import { StockService } from "../../stock/services/stock.service";
-import { CartItemService } from "../../cart/services/cartItem.service";
 
 export class ProductController {
   constructor(
     private readonly productService: ProductService = new ProductService(),
-    private readonly imageService: ImageService = new ImageService(),
-    private readonly stockService: StockService = new StockService(),
-    private readonly cartItemService: CartItemService = new CartItemService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
@@ -124,7 +117,7 @@ export class ProductController {
     try {
       const data = await this.productService.createProduct(productData);
 
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, "Producto creado correctamente");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);
@@ -155,7 +148,7 @@ export class ProductController {
       if (!data) {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, "Producto actualizado correctamente");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);
@@ -174,7 +167,7 @@ export class ProductController {
       if (!data) {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, "Producto actualizado correctamente");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);
@@ -208,7 +201,7 @@ export class ProductController {
       if (!data) {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, "Producto actualizado correctamente");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);
@@ -223,30 +216,14 @@ export class ProductController {
       if (!existingProduct) {
         return this.httpResponse.NotFound(res, "Producto no encontrado");
       }
-      // Eliminar el producto
-      const deletedProduct = await this.productService.deleteProduct(id);
+      // Eliminar el producto y las entidades relacionadas
+      const deletedProduct =
+        await this.productService.deleteProductAndRelatedEntities(id);
       if (!deletedProduct) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
-      // Eliminar las imágenes relacionadas
-      const images = deletedProduct.images;
-      for (const image of images) {
-        await this.imageService.deleteImage(image.id);
-      }
-      // Eliminar el stock relacionado
-      const stock = deletedProduct.stock;
-      if (stock) {
-        await this.stockService.deleteStock(stock.id);
-      }
-      // Eliminar los items del carrito relacionados al producto
-      const cartItems = deletedProduct.cartItems;
-      if (cartItems) {
-        for (const cartItem of cartItems) {
-          await this.cartItemService.deleteCartItem(cartItem);
-        }
-      }
 
-      return this.httpResponse.Ok(res, deletedProduct);
+      return this.httpResponse.Ok(res, "Producto eliminado correctamente");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);
