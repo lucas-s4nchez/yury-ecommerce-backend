@@ -119,15 +119,18 @@ export class BrandController {
     }
   }
 
-  async deleteProduct(req: Request, res: Response) {
+  async deleteBrand(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const data: DeleteResult = await this.brandService.deleteBrand(id);
-      if (!data.affected) {
+      const existingBrand = await this.brandService.findBrandById(id);
+      if (!existingBrand) {
+        return this.httpResponse.NotFound(res, "Marca no encontrada");
+      }
+      const deletedBrand = await this.brandService.deleteBrand(id);
+      if (!deletedBrand) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
-
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, "Marca eliminada correctamente");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);

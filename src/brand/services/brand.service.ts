@@ -3,14 +3,18 @@ import { BaseService } from "../../config/base.service";
 import { OrderType } from "../../shared/types/shared.types";
 import { BrandEntity } from "../entities/brand.entity";
 import { BrandDTO } from "../dto/brand.dto";
+import { ProductService } from "../../product/services/product.service";
 
 export class BrandService extends BaseService<BrandEntity> {
-  constructor() {
+  constructor(private productService: ProductService = new ProductService()) {
     super(BrandEntity);
   }
 
   async findAllBrands(): Promise<BrandEntity[]> {
-    return (await this.execRepository).createQueryBuilder("brands").getMany();
+    return (await this.execRepository)
+      .createQueryBuilder("brands")
+      .where({ state: true })
+      .getMany();
   }
 
   async findAllBrandsAndPaginate(
@@ -24,6 +28,7 @@ export class BrandService extends BaseService<BrandEntity> {
       .orderBy("brands.name", order)
       .skip(skipCount)
       .take(limit)
+      .where({ state: true })
       .getManyAndCount();
 
     const totalPages = Math.ceil(count / limit);
@@ -34,7 +39,15 @@ export class BrandService extends BaseService<BrandEntity> {
   async findBrandById(id: string): Promise<BrandEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("brand")
-      .where({ id })
+      .where({ id, state: true })
+      .getOne();
+  }
+
+  async findBrandByIdForDelete(id: string): Promise<BrandEntity | null> {
+    return (await this.execRepository)
+      .createQueryBuilder("brand")
+      .leftJoinAndSelect("brand.products", "products")
+      .where({ id, state: true })
       .getOne();
   }
 
@@ -42,7 +55,7 @@ export class BrandService extends BaseService<BrandEntity> {
     return (await this.execRepository)
       .createQueryBuilder("brand")
       .addSelect("brand.name")
-      .where({ name })
+      .where({ name, state: true })
       .getOne();
   }
 
@@ -55,7 +68,24 @@ export class BrandService extends BaseService<BrandEntity> {
     return (await this.execRepository).update({ id }, body);
   }
 
-  async deleteBrand(id: string): Promise<DeleteResult> {
-    return (await this.execRepository).delete({ id });
+  async deleteBrand(id: string): Promise<BrandEntity | null> {
+    // Obtener la marca existente
+    const existingBrand = await this.findBrandByIdForDelete(id);
+    if (!existingBrand) {
+      return null;
+    }
+
+    // Eliminar los productos relacionados
+    const products = existingBrand.products;
+    for (const product of products) {
+      await this.productService.deleteProductAndRelatedEntities(product.id);
+    }
+
+    // Actualizar el estado de la marca
+    existingBrand.state = false;
+
+    // Guardar los cambios en la base de datos
+    const updateResult = (await this.execRepository).save(existingBrand);
+    return updateResult;
   }
 }
