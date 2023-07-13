@@ -9,13 +9,6 @@ export class StockService extends BaseService<StockEntity> {
     super(StockEntity);
   }
 
-  async findAllStocks(): Promise<StockEntity[]> {
-    return (await this.execRepository)
-      .createQueryBuilder("stocks")
-      .leftJoinAndSelect("stocks.product", "product")
-      .getMany();
-  }
-
   async findAllStocksAndPaginate(
     page: number,
     limit: number,
@@ -28,6 +21,7 @@ export class StockService extends BaseService<StockEntity> {
       .orderBy("stocks.quantity", order)
       .skip(skipCount)
       .take(limit)
+      .where({ state: true })
       .getManyAndCount();
 
     const totalPages = Math.ceil(count / limit);
@@ -38,14 +32,18 @@ export class StockService extends BaseService<StockEntity> {
   async findStockById(id: string): Promise<StockEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("stock")
-      .where({ id })
+      .where({ id, state: true })
       .getOne();
   }
 
   async findStockByProduct(product: string): Promise<StockEntity | null> {
-    const stock = await (await this.execRepository)
+    const stock = await (
+      await this.execRepository
+    )
       .createQueryBuilder("stock")
-      .where("stock.product_id = :productId", { productId: product })
+      .where("stock.product_id = :productId", {
+        productId: product,
+      })
       .getOne();
     return stock || null;
   }

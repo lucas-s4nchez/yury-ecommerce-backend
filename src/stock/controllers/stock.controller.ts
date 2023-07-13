@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { OrderType } from "../../shared/types/shared.types";
-import { DeleteResult, UpdateResult } from "typeorm";
+import { UpdateResult } from "typeorm";
 import { StockService } from "../services/stock.service";
 
 export class StockController {
@@ -9,20 +9,6 @@ export class StockController {
     private readonly stockService: StockService = new StockService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
-
-  async stockList(req: Request, res: Response) {
-    try {
-      const data = await this.stockService.findAllStocks();
-
-      if (data.length === 0) {
-        return this.httpResponse.NotFound(res, "No hay stocks");
-      }
-      return this.httpResponse.Ok(res, data);
-    } catch (e) {
-      console.log(e);
-      return this.httpResponse.Error(res, e);
-    }
-  }
 
   async getStocks(req: Request, res: Response) {
     try {
@@ -98,25 +84,6 @@ export class StockController {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }
       return this.httpResponse.Ok(res, data);
-    } catch (e) {
-      console.log(e);
-      return this.httpResponse.Error(res, e);
-    }
-  }
-
-  async deleteStock(req: Request, res: Response) {
-    const { id } = req.params;
-    try {
-      const existingStock = await this.stockService.findStockById(id);
-      if (!existingStock) {
-        return this.httpResponse.NotFound(res, "Stock no encontrado");
-      }
-      const deletedStock = await this.stockService.deleteStock(id);
-      if (!deletedStock) {
-        return this.httpResponse.NotFound(res, "Error al eliminar");
-      }
-
-      return this.httpResponse.Ok(res, deletedStock);
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);

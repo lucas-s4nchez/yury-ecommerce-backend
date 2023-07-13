@@ -8,27 +8,31 @@ export class StockRoute extends BaseRouter<StockController, StockMiddleware> {
   }
 
   routes(): void {
-    this.router.get("/stockList", (req, res) =>
-      this.controller.stockList(req, res)
+    this.router.get(
+      "/stocks",
+      this.middleware.checkJsonWebToken,
+      this.middleware.checkAdminRole.bind(this.middleware),
+      (req, res) => this.controller.getStocks(req, res)
     );
-    this.router.get("/stocks", (req, res) =>
-      this.controller.getStocks(req, res)
-    );
-    this.router.get("/stocks/:id", (req, res) =>
-      this.controller.getStockById(req, res)
+    this.router.get(
+      "/stocks/:id",
+      this.middleware.checkJsonWebToken,
+      this.middleware.checkAdminRole.bind(this.middleware),
+      (req, res) => this.controller.getStockById(req, res)
     );
     this.router.post(
       "/stocks",
+      this.middleware.checkJsonWebToken,
+      this.middleware.checkAdminRole.bind(this.middleware),
       this.middleware.stockValidator.bind(this.middleware),
       (req, res) => this.controller.createStock(req, res)
     );
     this.router.put(
       "/stocks/:id",
+      this.middleware.checkJsonWebToken,
+      this.middleware.checkAdminRole.bind(this.middleware),
       this.middleware.updateStockValidator.bind(this.middleware),
       (req, res) => this.controller.updateStock(req, res)
-    );
-    this.router.delete("/stocks/:id", (req, res) =>
-      this.controller.deleteStock(req, res)
     );
   }
 }
