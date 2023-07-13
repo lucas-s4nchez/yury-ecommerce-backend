@@ -13,6 +13,7 @@ export class CategoryService extends BaseService<CategoryEntity> {
   async findAllCategories(): Promise<CategoryEntity[]> {
     return (await this.execRepository)
       .createQueryBuilder("categories")
+      .where({ state: true })
       .getMany();
   }
 
@@ -27,6 +28,7 @@ export class CategoryService extends BaseService<CategoryEntity> {
       .orderBy("categories.name", order)
       .skip(skipCount)
       .take(limit)
+      .where({ state: true })
       .getManyAndCount();
 
     const totalPages = Math.ceil(count / limit);
@@ -37,7 +39,7 @@ export class CategoryService extends BaseService<CategoryEntity> {
   async findCategoryById(id: string): Promise<CategoryEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("category")
-      .where({ id })
+      .where({ id, state: true })
       .getOne();
   }
 
@@ -45,7 +47,7 @@ export class CategoryService extends BaseService<CategoryEntity> {
     return (await this.execRepository)
       .createQueryBuilder("category")
       .leftJoinAndSelect("category.products", "products")
-      .where({ id })
+      .where({ id, state: true })
       .getOne();
   }
 
@@ -53,7 +55,7 @@ export class CategoryService extends BaseService<CategoryEntity> {
     return (await this.execRepository)
       .createQueryBuilder("category")
       .addSelect("category.name")
-      .where({ name })
+      .where({ name, state: true })
       .getOne();
   }
 
