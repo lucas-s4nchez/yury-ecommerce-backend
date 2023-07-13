@@ -5,7 +5,7 @@ import { SnakeNamingStrategy } from "typeorm-naming-strategies";
 dotenv.config({
   path:
     process.env.NODE_ENV !== undefined
-      ? `${process.env.NODE_ENV.trim()}.env`
+      ? `.${process.env.NODE_ENV.trim()}.env`
       : ".env",
 });
 
