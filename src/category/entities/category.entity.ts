@@ -4,7 +4,7 @@ import { ProductEntity } from "../../product/entities/product.entity";
 
 @Entity({ name: "category" })
 export class CategoryEntity extends BaseEntity {
-  @Column({ unique: true })
+  @Column()
   name!: string;
 
   @OneToMany(() => ProductEntity, (product) => product.category)

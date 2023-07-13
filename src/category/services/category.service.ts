@@ -3,9 +3,10 @@ import { BaseService } from "../../config/base.service";
 import { CategoryDTO } from "../dto/category.dto";
 import { CategoryEntity } from "../entities/category.entity";
 import { OrderType } from "../../shared/types/shared.types";
+import { ProductService } from "../../product/services/product.service";
 
 export class CategoryService extends BaseService<CategoryEntity> {
-  constructor() {
+  constructor(private productService: ProductService = new ProductService()) {
     super(CategoryEntity);
   }
 
@@ -40,6 +41,14 @@ export class CategoryService extends BaseService<CategoryEntity> {
       .getOne();
   }
 
+  async findCategoryByIdForDelete(id: string): Promise<CategoryEntity | null> {
+    return (await this.execRepository)
+      .createQueryBuilder("category")
+      .leftJoinAndSelect("category.products", "products")
+      .where({ id })
+      .getOne();
+  }
+
   async findCategoryByName(name: string): Promise<CategoryEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("category")
@@ -56,7 +65,24 @@ export class CategoryService extends BaseService<CategoryEntity> {
     return (await this.execRepository).update({ id }, body);
   }
 
-  async deleteCategory(id: string): Promise<DeleteResult> {
-    return (await this.execRepository).delete({ id });
+  async deleteCategory(id: string): Promise<CategoryEntity | null> {
+    // Obtener el producto existente
+    const existingCategory = await this.findCategoryByIdForDelete(id);
+    if (!existingCategory) {
+      return null;
+    }
+
+    // Eliminar los productos relacionados relacionadas
+    const products = existingCategory.products;
+    for (const product of products) {
+      await this.productService.deleteProductAndRelatedEntities(product.id);
+    }
+
+    // Actualizar el estado de la categoria
+    existingCategory.state = false;
+
+    // Guardar los cambios en la base de datos
+    const updateResult = (await this.execRepository).save(existingCategory);
+    return updateResult;
   }
 }

@@ -122,12 +122,17 @@ export class CategoryController {
   async deleteCategory(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const data: DeleteResult = await this.categoryService.deleteCategory(id);
-      if (!data.affected) {
+      const existingCategory = await this.categoryService.findCategoryById(id);
+      if (!existingCategory) {
+        return this.httpResponse.NotFound(res, "Categoría no encontrada");
+      }
+      const deletedCategory = await this.categoryService.deleteCategory(id);
+      if (!deletedCategory) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, "Categoría eliminada correctamente");
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }
