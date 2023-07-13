@@ -5,7 +5,7 @@ import { CartItemEntity } from "../../cart/entities/cartItem.entity";
 
 @Entity({ name: "size" })
 export class SizeEntity extends BaseEntity {
-  @Column({ unique: true, type: "float" })
+  @Column({ type: "float" })
   number!: number;
 
   @ManyToMany(() => ProductEntity, (product) => product.sizes)

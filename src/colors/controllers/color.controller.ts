@@ -126,12 +126,15 @@ export class ColorController {
   async deleteColor(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const data: DeleteResult = await this.colorService.deleteColor(id);
-      if (!data.affected) {
+      const existingColor = await this.colorService.findColorById(id);
+      if (!existingColor) {
+        return this.httpResponse.NotFound(res, "Color no encontrado");
+      }
+      const deletedColor = await this.colorService.deleteColor(id);
+      if (!deletedColor) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
-
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, "Color eliminado correctamente");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);

@@ -4,7 +4,7 @@ import { ProductEntity } from "../../product/entities/product.entity";
 
 @Entity({ name: "color" })
 export class ColorEntity extends BaseEntity {
-  @Column({ unique: true })
+  @Column()
   name!: string;
 
   @Column()

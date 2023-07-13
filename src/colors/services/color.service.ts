@@ -3,14 +3,18 @@ import { BaseService } from "../../config/base.service";
 import { OrderType } from "../../shared/types/shared.types";
 import { ColorEntity } from "../entities/color.entity";
 import { ColorDTO } from "../dto/color.dto";
+import { ProductService } from "../../product/services/product.service";
 
 export class ColorService extends BaseService<ColorEntity> {
-  constructor() {
+  constructor(private productService: ProductService = new ProductService()) {
     super(ColorEntity);
   }
 
   async findAllColors(): Promise<ColorEntity[]> {
-    return (await this.execRepository).createQueryBuilder("colors").getMany();
+    return (await this.execRepository)
+      .createQueryBuilder("colors")
+      .where({ state: true })
+      .getMany();
   }
 
   async findAllColorsAndPaginate(
@@ -24,6 +28,7 @@ export class ColorService extends BaseService<ColorEntity> {
       .orderBy("colors.name", order)
       .skip(skipCount)
       .take(limit)
+      .where({ state: true })
       .getManyAndCount();
 
     const totalPages = Math.ceil(count / limit);
@@ -34,7 +39,15 @@ export class ColorService extends BaseService<ColorEntity> {
   async findColorById(id: string): Promise<ColorEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("color")
-      .where({ id })
+      .where({ id, state: true })
+      .getOne();
+  }
+
+  async findColorByIdForDelete(id: string): Promise<ColorEntity | null> {
+    return (await this.execRepository)
+      .createQueryBuilder("color")
+      .leftJoinAndSelect("color.products", "products")
+      .where({ id, state: true })
       .getOne();
   }
 
@@ -42,7 +55,7 @@ export class ColorService extends BaseService<ColorEntity> {
     return (await this.execRepository)
       .createQueryBuilder("color")
       .addSelect("color.name")
-      .where({ name })
+      .where({ name, state: true })
       .getOne();
   }
 
@@ -54,7 +67,25 @@ export class ColorService extends BaseService<ColorEntity> {
     return (await this.execRepository).update({ id }, body);
   }
 
-  async deleteColor(id: string): Promise<DeleteResult> {
-    return (await this.execRepository).delete({ id });
+  async deleteColor(id: string): Promise<ColorEntity | null> {
+    // Obtener el producto existente
+    const existingColor = await this.findColorByIdForDelete(id);
+    if (!existingColor) {
+      return null;
+    }
+
+    // Eliminar los productos relacionados relacionadas
+    const products = existingColor.products;
+    for (const product of products) {
+      await this.productService.deleteProductAndRelatedEntities(product.id);
+    }
+
+    // Actualizar el estado de la categoria
+    existingColor.state = false;
+
+    // Guardar los cambios en la base de datos
+    const updateResult = (await this.execRepository).save(existingColor);
+    return updateResult;
+    // return (await this.execRepository).delete({ id });
   }
 }

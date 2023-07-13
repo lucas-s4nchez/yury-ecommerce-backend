@@ -16,6 +16,8 @@ import { SizeEntity } from "../../size/entities/size.entity";
 import { ColorEntity } from "../../colors/entities/color.entity";
 import { IsValidSize } from "../validators/valid-size.validator";
 import { IsValidColor } from "../validators/valid-color.validator";
+import { IsValidCategory } from "../validators/valid-category.validator";
+import { IsValidBrand } from "../validators/valid-brand.validator";
 
 export class ProductDTO extends BaseDTO {
   @IsNotEmpty({ message: "El nombre es requerido" })
@@ -42,9 +44,11 @@ export class ProductDTO extends BaseDTO {
   available?: boolean;
 
   @IsNotEmpty({ message: "La marca es requerida" })
+  @IsValidBrand()
   brand!: BrandEntity;
 
   @IsNotEmpty({ message: "La categoría es requerida" })
+  @IsValidCategory()
   category!: CategoryEntity;
 
   @ValidateNested({ each: true, message: "Debe ser un array de talles" })

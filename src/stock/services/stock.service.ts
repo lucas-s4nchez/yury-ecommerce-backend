@@ -1,9 +1,8 @@
-import { DeleteResult, UpdateResult } from "typeorm";
+import { UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { OrderType } from "../../shared/types/shared.types";
 import { StockEntity } from "../entities/stock.entity";
 import { StockDTO, UpdateStockDTO } from "../dto/stock.dto";
-import { ProductEntity } from "../../product/entities/product.entity";
 
 export class StockService extends BaseService<StockEntity> {
   constructor() {
