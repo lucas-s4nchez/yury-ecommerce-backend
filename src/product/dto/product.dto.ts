@@ -88,9 +88,11 @@ export class UpdateProductDTO extends BaseDTO {
   available?: boolean;
 
   @IsNotEmpty({ message: "La marca es requerida" })
+  @IsValidBrand()
   brand!: BrandEntity;
 
   @IsNotEmpty({ message: "La categoría es requerida" })
+  @IsValidCategory()
   category!: CategoryEntity;
 
   @ValidateNested({ each: true, message: "Debe ser un array de talles" })
