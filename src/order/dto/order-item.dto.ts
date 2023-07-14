@@ -21,7 +21,4 @@ export class OrderItemDTO extends BaseDTO {
 
   @IsNotEmpty()
   order!: OrderEntity;
-
-  @IsNotEmpty()
-  product!: ProductEntity;
 }

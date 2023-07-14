@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { BaseEntity } from "../../config/base.entity";
 import { OrderItemEntity } from "./order-item.entity";
 import { UserEntity } from "../../user/entities/user.entity";
-import { OrderStatusType, PaymentMethodsType } from "../dto/order.dto";
+import { OrderStatusType } from "../dto/order.dto";
 
 @Entity({ name: "order" })
 export class OrderEntity extends BaseEntity {
@@ -38,13 +38,6 @@ export class OrderEntity extends BaseEntity {
   })
   status!: OrderStatusType;
 
-  @Column({
-    type: "enum",
-    enum: PaymentMethodsType,
-    nullable: false,
-  })
-  paymentMethod!: PaymentMethodsType;
-
   @Column({ type: Boolean, default: false })
   isPaid!: boolean;
 
@@ -59,5 +52,5 @@ export class OrderEntity extends BaseEntity {
   orderItems!: OrderItemEntity[];
 
   @Column()
-  numberOfItems!: number;
+  totalItems!: number;
 }

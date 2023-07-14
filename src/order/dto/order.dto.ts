@@ -28,16 +28,13 @@ export class OrderDTO extends BaseDTO {
   phone!: string;
 
   @IsNotEmpty()
-  paymentMethod!: PaymentMethodsType;
-
-  @IsNotEmpty()
   total!: number;
 
   @IsNotEmpty()
   user!: UserEntity;
 
   @IsNotEmpty()
-  numberOfItems!: number;
+  totalItems!: number;
 
   @IsOptional()
   isPaid!: boolean;
@@ -50,9 +47,4 @@ export enum OrderStatusType {
   PENDING = "PENDING",
   COMPLETED = "COMPLETED",
   CANCELED = "CANCELED",
-}
-
-export enum PaymentMethodsType {
-  MERCADO_PAGO = "MERCADO PAGO",
-  PAYPAL = "PAYPAL",
 }
