@@ -2,9 +2,10 @@ import { DeleteResult, UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { OrderItemEntity } from "../entities/order-item.entity";
 import { OrderItemDTO } from "../dto/order-item.dto";
+import { ProductService } from "../../product/services/product.service";
 
 export class OrderItemService extends BaseService<OrderItemEntity> {
-  constructor() {
+  constructor(private productService: ProductService = new ProductService()) {
     super(OrderItemEntity);
   }
 

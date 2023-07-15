@@ -1,7 +1,6 @@
-import { EntityTarget, ObjectLiteral, QueryRunner, Repository } from "typeorm";
+import { EntityTarget, ObjectLiteral, Repository } from "typeorm";
 import { BaseEntity } from "./base.entity";
 import { ConfigServer } from "./config";
-import { AppDataSource } from "./data.source";
 
 export class BaseService<T extends BaseEntity> extends ConfigServer {
   public execRepository: Promise<Repository<T>>;
@@ -16,11 +15,6 @@ export class BaseService<T extends BaseEntity> extends ConfigServer {
   ): Promise<Repository<T>> {
     const getConnection = await this.initConnect;
     return getConnection.getRepository(entity);
-  }
-
-  createQueryRunner(): QueryRunner {
-    const queryRunner = AppDataSource.createQueryRunner();
-    return queryRunner;
   }
 }
 

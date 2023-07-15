@@ -5,13 +5,12 @@ import { OrderType } from "../../shared/types/shared.types";
 import { ImageService } from "../../image/services/image.service";
 import { StockService } from "../../stock/services/stock.service";
 import { CartItemService } from "../../cart/services/cartItem.service";
+import { AppDataSource } from "../../config/data.source";
+import { ImageEntity } from "../../image/entities/image.entity";
+import { StockEntity } from "../../stock/entities/stock.entity";
 
 export class ProductService extends BaseService<ProductEntity> {
-  constructor(
-    private imageService: ImageService = new ImageService(),
-    private stockService: StockService = new StockService(),
-    private cartItemService: CartItemService = new CartItemService()
-  ) {
+  constructor() {
     super(ProductEntity);
   }
 
@@ -191,9 +190,9 @@ export class ProductService extends BaseService<ProductEntity> {
     if (!existingProduct) {
       return null;
     }
-
     // Crear un query runner
-    const queryRunner = this.createQueryRunner();
+
+    const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
@@ -201,29 +200,32 @@ export class ProductService extends BaseService<ProductEntity> {
       // Eliminar las imágenes relacionadas
       const images = existingProduct.images;
       for (const image of images) {
-        await this.imageService.deleteImageWithQueryRunner(
-          image.id,
-          queryRunner
-        );
+        const existingImage = await queryRunner.manager.findOneBy(ImageEntity, {
+          id: image.id,
+        });
+        if (existingImage) {
+          existingImage.state = false;
+          await queryRunner.manager.save(existingImage);
+        }
       }
 
       // Eliminar el stock relacionado
       const stock = existingProduct.stock;
       if (stock) {
-        await this.stockService.deleteStockWithQueryRunner(
-          stock.id,
-          queryRunner
-        );
+        const existingStock = await queryRunner.manager.findOneBy(StockEntity, {
+          id: stock.id,
+        });
+        if (existingStock) {
+          existingStock.state = false;
+          await queryRunner.manager.save(existingStock);
+        }
       }
 
       // Eliminar los items del carrito relacionados al producto
       const cartItems = existingProduct.cartItems;
       if (cartItems) {
         for (const cartItem of cartItems) {
-          await this.cartItemService.deleteCartItemWithQueryRunner(
-            cartItem,
-            queryRunner
-          );
+          await queryRunner.manager.remove(cartItem);
         }
       }
 
