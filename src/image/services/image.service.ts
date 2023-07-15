@@ -1,4 +1,4 @@
-import { DeleteResult, UpdateResult } from "typeorm";
+import { DeleteResult, QueryRunner, UpdateResult } from "typeorm";
 import { ProductDTO } from "../../product/dto/product.dto";
 import { ImageEntity } from "../entities/image.entity";
 import { BaseService } from "../../config/base.service";
@@ -39,6 +39,19 @@ export class ImageService extends BaseService<ImageEntity> {
     // Guardar los cambios en la base de datos
     const updateResult = (await this.execRepository).save(existingImage);
     return updateResult;
+  }
+
+  async deleteImageWithQueryRunner(
+    imageId: string,
+    queryRunner: QueryRunner
+  ): Promise<void> {
+    const image = await queryRunner.manager.findOneBy(ImageEntity, {
+      id: imageId,
+    });
+    if (image) {
+      image.state = false;
+      await queryRunner.manager.save(image);
+    }
   }
 
   async deleteAllImagesByProductId(id: string): Promise<DeleteResult> {

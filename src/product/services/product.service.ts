@@ -5,6 +5,7 @@ import { OrderType } from "../../shared/types/shared.types";
 import { ImageService } from "../../image/services/image.service";
 import { StockService } from "../../stock/services/stock.service";
 import { CartItemService } from "../../cart/services/cartItem.service";
+import { AppDataSource } from "../../config/data.source";
 
 export class ProductService extends BaseService<ProductEntity> {
   constructor(
@@ -176,31 +177,55 @@ export class ProductService extends BaseService<ProductEntity> {
       return null;
     }
 
-    // Eliminar las imágenes relacionadas
-    const images = existingProduct.images;
-    for (const image of images) {
-      await this.imageService.deleteImage(image.id);
-    }
+    // Crear un query runner
+    const queryRunner = this.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    // Eliminar el stock relacionado
-    const stock = existingProduct.stock;
-    if (stock) {
-      await this.stockService.deleteStock(stock.id);
-    }
-
-    // Eliminar los items del carrito relacionados al producto
-    const cartItems = existingProduct.cartItems;
-    if (cartItems) {
-      for (const cartItem of cartItems) {
-        await this.cartItemService.deleteCartItem(cartItem);
+    try {
+      // Eliminar las imágenes relacionadas
+      const images = existingProduct.images;
+      for (const image of images) {
+        await this.imageService.deleteImageWithQueryRunner(
+          image.id,
+          queryRunner
+        );
       }
+
+      // Eliminar el stock relacionado
+      const stock = existingProduct.stock;
+      if (stock) {
+        await this.stockService.deleteStockWithQueryRunner(
+          stock.id,
+          queryRunner
+        );
+      }
+
+      // Eliminar los items del carrito relacionados al producto
+      const cartItems = existingProduct.cartItems;
+      if (cartItems) {
+        for (const cartItem of cartItems) {
+          await this.cartItemService.deleteCartItemWithQueryRunner(
+            cartItem,
+            queryRunner
+          );
+        }
+      }
+
+      // Actualizar el estado del producto
+      existingProduct.state = false;
+
+      // Guardar los cambios en la base de datos
+      const updateResult = await queryRunner.manager.save(existingProduct);
+      // Commit de la transacción
+      await queryRunner.commitTransaction();
+
+      return updateResult;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      return null;
+    } finally {
+      await queryRunner.release();
     }
-
-    // Actualizar el estado del producto
-    existingProduct.state = false;
-
-    // Guardar los cambios en la base de datos
-    const updateResult = (await this.execRepository).save(existingProduct);
-    return updateResult;
   }
 }

@@ -1,4 +1,4 @@
-import { UpdateResult } from "typeorm";
+import { QueryRunner, UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { OrderType } from "../../shared/types/shared.types";
 import { StockEntity } from "../entities/stock.entity";
@@ -69,5 +69,18 @@ export class StockService extends BaseService<StockEntity> {
     // Guardar los cambios en la base de datos
     const updateResult = (await this.execRepository).save(existingStock);
     return updateResult;
+  }
+
+  async deleteStockWithQueryRunner(
+    stockId: string,
+    queryRunner: QueryRunner
+  ): Promise<void> {
+    const stock = await queryRunner.manager.findOneBy(StockEntity, {
+      id: stockId,
+    });
+    if (stock) {
+      stock.state = false;
+      await queryRunner.manager.save(stock);
+    }
   }
 }

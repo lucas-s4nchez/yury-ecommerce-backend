@@ -1,4 +1,4 @@
-import { DeleteResult } from "typeorm";
+import { DeleteResult, QueryRunner } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { CartItemEntity } from "../entities/cartItem.entity";
 import { CartItemDTO } from "../dto/cartItem.dto";
@@ -63,6 +63,13 @@ export class CartItemService extends BaseService<CartItemEntity> {
 
   async deleteCartItem(cartItem: CartItemEntity): Promise<CartItemEntity> {
     return (await this.execRepository).remove(cartItem);
+  }
+
+  async deleteCartItemWithQueryRunner(
+    cartItem: CartItemEntity,
+    queryRunner: QueryRunner
+  ): Promise<void> {
+    await queryRunner.manager.remove(cartItem);
   }
 
   async deleteAllCartItems(cartId: string): Promise<void> {
