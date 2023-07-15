@@ -1,4 +1,4 @@
-import { DeleteResult, QueryRunner } from "typeorm";
+import { QueryRunner } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { CartItemEntity } from "../entities/cartItem.entity";
 import { CartItemDTO } from "../dto/cartItem.dto";
@@ -11,10 +11,12 @@ export class CartItemService extends BaseService<CartItemEntity> {
   async findAllCartItems(cartId: string): Promise<CartItemEntity[]> {
     return (await this.execRepository)
       .createQueryBuilder("cartItems")
+      .leftJoinAndSelect("cartItems.size", "size")
       .leftJoinAndSelect("cartItems.product", "product")
       .leftJoinAndSelect("product.stock", "stock")
       .leftJoinAndSelect("product.brand", "brand")
-      .leftJoinAndSelect("product.sizes", "size")
+      .leftJoinAndSelect("product.sizes", "sizes")
+      .leftJoinAndSelect("product.images", "images")
       .where("cartItems.cart_id = :cartId", { cartId })
       .getMany();
   }
@@ -25,10 +27,12 @@ export class CartItemService extends BaseService<CartItemEntity> {
   ): Promise<CartItemEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("cartItem")
+      .leftJoinAndSelect("cartItems.size", "size")
       .leftJoinAndSelect("cartItem.product", "product")
       .leftJoinAndSelect("product.stock", "stock")
       .leftJoinAndSelect("product.brand", "brand")
-      .leftJoinAndSelect("product.sizes", "size")
+      .leftJoinAndSelect("product.sizes", "sizes")
+      .leftJoinAndSelect("product.images", "images")
       .where("cartItem.cart_id = :cartId", { cartId })
       .andWhere({ id })
       .getOne();

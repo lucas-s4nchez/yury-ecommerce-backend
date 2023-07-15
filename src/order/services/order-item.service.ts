@@ -12,16 +12,20 @@ export class OrderItemService extends BaseService<OrderItemEntity> {
     return (await this.execRepository)
       .createQueryBuilder("order-items")
       .leftJoinAndSelect("order-items.order", "order")
+      .leftJoinAndSelect("order-items.product", "product")
+      .leftJoinAndSelect("product.images", "images")
       .getManyAndCount();
   }
   async findOrderItemById(id: string): Promise<OrderItemEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("order-items")
       .leftJoinAndSelect("order-items.order", "order")
+      .leftJoinAndSelect("order-items.product", "product")
+      .leftJoinAndSelect("product.images", "images")
       .where({ id })
       .getOne();
   }
-  async createOrderItem(body: OrderItemDTO): Promise<OrderItemEntity> {
+  async createOrderItem(body: OrderItemEntity): Promise<OrderItemEntity> {
     return (await this.execRepository).save(body);
   }
   async deleteOrderItem(id: string): Promise<DeleteResult> {

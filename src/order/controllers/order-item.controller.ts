@@ -4,10 +4,13 @@ import { DeleteResult, UpdateResult } from "typeorm";
 import { OrderItemService } from "../services/order-item.service";
 import { OrderItemDTO } from "../dto/order-item.dto";
 import { validate } from "class-validator";
+import { OrderItemEntity } from "../entities/order-item.entity";
+import { ProductService } from "../../product/services/product.service";
 
 export class OrderItemController {
   constructor(
     private readonly orderItemService: OrderItemService = new OrderItemService(),
+    private readonly productService: ProductService = new ProductService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
@@ -23,6 +26,7 @@ export class OrderItemController {
 
       return this.httpResponse.Ok(res, { orderItems, count });
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }
@@ -43,14 +47,23 @@ export class OrderItemController {
   async createOrderItem(req: Request, res: Response) {
     const orderItemData = req.body;
     try {
-      const orderItemDTO = new OrderItemDTO();
-      Object.assign(orderItemDTO, orderItemData);
+      // const orderItemDTO = new OrderItemDTO();
+      // Object.assign(orderItemDTO, orderItemData);
 
-      const errors = await validate(orderItemDTO);
-      if (errors.length > 0) {
-        return this.httpResponse.BadRequest(res, errors);
+      // const errors = await validate(orderItemDTO);
+      // if (errors.length > 0) {
+      //   return this.httpResponse.BadRequest(res, errors);
+      // }
+      const orderItem = new OrderItemEntity();
+      Object.assign(orderItem, orderItemData);
+      const product = await this.productService.findProductById(
+        orderItemData.product
+      );
+      if (product) {
+        orderItem.product = product;
       }
-      const data = await this.orderItemService.createOrderItem(orderItemData);
+
+      const data = await this.orderItemService.createOrderItem(orderItem);
       return this.httpResponse.Ok(res, data);
     } catch (e) {
       console.log(e);

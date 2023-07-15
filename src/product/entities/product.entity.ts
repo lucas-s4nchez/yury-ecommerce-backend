@@ -83,4 +83,7 @@ export class ProductEntity extends BaseEntity {
 
   @OneToMany(() => CartItemEntity, (cartItem) => cartItem.product)
   cartItems!: CartItemEntity[];
+
+  @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.product)
+  orderItems!: OrderItemEntity[];
 }

@@ -16,7 +16,7 @@ export class CartItemDTO extends BaseDTO {
   @Min(1, { message: "La cantidad mínima es de 1 unidad" })
   quantity!: number;
 
-  @IsNotEmpty({ message: "El producto es requerida" })
+  @IsNotEmpty({ message: "El producto es requerido" })
   @IsProductExisting()
   product!: ProductEntity;
 

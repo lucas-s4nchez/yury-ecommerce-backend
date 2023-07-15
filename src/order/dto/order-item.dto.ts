@@ -1,4 +1,4 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 import { BaseDTO } from "../../config/base.dto";
 import { OrderEntity } from "../entities/order.entity";
 import { ProductEntity } from "../../product/entities/product.entity";
@@ -21,4 +21,7 @@ export class OrderItemDTO extends BaseDTO {
 
   @IsNotEmpty()
   order!: OrderEntity;
+
+  @IsNotEmpty()
+  product!: ProductEntity;
 }
