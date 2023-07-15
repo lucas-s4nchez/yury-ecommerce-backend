@@ -5,7 +5,6 @@ import { OrderType } from "../../shared/types/shared.types";
 import { ImageService } from "../../image/services/image.service";
 import { StockService } from "../../stock/services/stock.service";
 import { CartItemService } from "../../cart/services/cartItem.service";
-import { AppDataSource } from "../../config/data.source";
 
 export class ProductService extends BaseService<ProductEntity> {
   constructor(
@@ -22,10 +21,14 @@ export class ProductService extends BaseService<ProductEntity> {
     order: OrderType
   ): Promise<[ProductEntity[], number, number]> {
     const skipCount = (page - 1) * limit;
-    const [products, count] = await (await this.execRepository)
+    const [products, count] = await (
+      await this.execRepository
+    )
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
-      .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.images", "images", "images.state = :state", {
+        state: true,
+      })
       .leftJoinAndSelect("products.stock", "stock")
       .leftJoinAndSelect("products.sizes", "sizes")
       .leftJoinAndSelect("products.colors", "colors")
@@ -47,10 +50,14 @@ export class ProductService extends BaseService<ProductEntity> {
     order: OrderType
   ): Promise<[ProductEntity[], number, number]> {
     const skipCount = (page - 1) * limit;
-    const [products, count] = await (await this.execRepository)
+    const [products, count] = await (
+      await this.execRepository
+    )
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
-      .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.images", "images", "images.state = :state", {
+        state: true,
+      })
       .leftJoinAndSelect("products.stock", "stock")
       .leftJoinAndSelect("products.sizes", "sizes")
       .leftJoinAndSelect("products.colors", "colors")
@@ -70,7 +77,9 @@ export class ProductService extends BaseService<ProductEntity> {
     return (await this.execRepository)
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
-      .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.images", "images", "images.state = :state", {
+        state: true,
+      })
       .leftJoinAndSelect("products.stock", "stock")
       .leftJoinAndSelect("products.sizes", "sizes")
       .leftJoinAndSelect("products.colors", "colors")
@@ -83,7 +92,9 @@ export class ProductService extends BaseService<ProductEntity> {
     return (await this.execRepository)
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
-      .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.images", "images", "images.state = :state", {
+        state: true,
+      })
       .leftJoinAndSelect("products.stock", "stock")
       .leftJoinAndSelect("products.sizes", "sizes")
       .leftJoinAndSelect("products.colors", "colors")
@@ -96,7 +107,9 @@ export class ProductService extends BaseService<ProductEntity> {
     return (await this.execRepository)
       .createQueryBuilder("product")
       .leftJoinAndSelect("product.category", "category")
-      .leftJoinAndSelect("product.images", "images")
+      .leftJoinAndSelect("product.images", "images", "images.state = :state", {
+        state: true,
+      })
       .leftJoinAndSelect("product.stock", "stock")
       .leftJoinAndSelect("product.sizes", "sizes")
       .leftJoinAndSelect("product.colors", "colors")
@@ -110,7 +123,9 @@ export class ProductService extends BaseService<ProductEntity> {
     return (await this.execRepository)
       .createQueryBuilder("products")
       .leftJoinAndSelect("products.category", "category")
-      .leftJoinAndSelect("products.images", "images")
+      .leftJoinAndSelect("products.images", "images", "images.state = :state", {
+        state: true,
+      })
       .leftJoinAndSelect("products.stock", "stock")
       .leftJoinAndSelect("products.sizes", "sizes")
       .leftJoinAndSelect("products.colors", "colors")

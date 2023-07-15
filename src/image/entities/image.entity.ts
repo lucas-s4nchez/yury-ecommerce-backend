@@ -8,21 +8,10 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ProductEntity } from "../../product/entities/product.entity";
+import { BaseEntity } from "../../config/base.entity";
 
 @Entity({ name: "image" })
-export class ImageEntity {
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
-
-  @CreateDateColumn({ name: "created_at", type: "timestamp" })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ name: "updated_at", type: "timestamp" })
-  updatedAt!: Date;
-
-  @Column({ type: "boolean", default: true })
-  state!: boolean;
-
+export class ImageEntity extends BaseEntity {
   @Column()
   url!: string;
 

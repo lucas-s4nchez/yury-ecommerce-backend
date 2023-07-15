@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { validate } from "class-validator";
 import { SharedMiddleware } from "../../shared/middlewares/shared.middleware";
-import { ImageDTO } from "../dto/image.dto";
 import { UploadedFile } from "express-fileupload";
 
 export class ImageMiddleware extends SharedMiddleware {
@@ -23,7 +21,7 @@ export class ImageMiddleware extends SharedMiddleware {
       );
     }
 
-    // Verificar el tipo de archivo (por ejemplo, solo permitir imágenes)
+    // Verificar el tipo de archivo (solo permitir imágenes)
     const allowedMimeTypes = [
       "image/jpeg",
       "image/jpg",
@@ -36,28 +34,5 @@ export class ImageMiddleware extends SharedMiddleware {
     }
 
     next();
-  }
-
-  imageValidator(req: Request, res: Response, next: NextFunction) {
-    const { url, public_id, product } = req.body;
-    const validCategory = new ImageDTO();
-
-    validCategory.url = url;
-    validCategory.public_id = public_id;
-    validCategory.product = product;
-
-    validate(validCategory).then((err) => {
-      if (err.length > 0) {
-        const formattedErrors = err.map((error) => ({
-          property: error.property,
-          errors: Object.keys(error.constraints!).map(
-            (key) => error.constraints![key]
-          ),
-        }));
-        return this.httpResponse.BadRequest(res, formattedErrors);
-      } else {
-        next();
-      }
-    });
   }
 }

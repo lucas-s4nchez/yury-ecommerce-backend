@@ -2,15 +2,11 @@ import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { ImageService } from "../services/image.service";
 import { UploadedFile } from "express-fileupload";
-import {
-  deleteImageFromCloudinary,
-  uploadImageToCloudinary,
-} from "../helpers/cloudinary.helper";
+import { uploadImageToCloudinary } from "../helpers/cloudinary.helper";
 import { ImageDTO } from "../dto/image.dto";
 import { ProductService } from "../../product/services/product.service";
 import { plainToClass } from "class-transformer";
 import { ProductEntity } from "../../product/entities/product.entity";
-import { DeleteResult } from "typeorm";
 
 export class ImageController {
   constructor(
@@ -22,8 +18,14 @@ export class ImageController {
   async getImages(req: Request, res: Response) {
     const { productId } = req.params;
     try {
-      const data = await this.imageService.findImagesByProductId(productId);
+      const existingProduct = await this.productService.findProductById(
+        productId
+      );
+      if (!existingProduct) {
+        return this.httpResponse.NotFound(res, "Producto no encontrado");
+      }
 
+      const data = await this.imageService.findImagesByProductId(productId);
       if (data.length === 0) {
         return this.httpResponse.NotFound(
           res,
@@ -59,7 +61,11 @@ export class ImageController {
       if (!product) {
         return this.httpResponse.BadRequest(res, "Producto no encontrado");
       }
-      if (product.images.length >= 4) {
+      //Imagenes activas del producto
+      const productImages = product.images.filter(
+        (image) => image.state === true
+      );
+      if (productImages.length >= 4) {
         return this.httpResponse.BadRequest(
           res,
           "Los productos tienen un máximo de 4 imágenes permitidas"
@@ -86,16 +92,34 @@ export class ImageController {
   }
 
   async deleteImage(req: Request, res: Response) {
-    const { id } = req.params;
+    const { productId, imageId } = req.params;
 
     try {
-      const exsitingImage = await this.imageService.findImagesById(id);
-      if (!exsitingImage) {
+      const existingProduct = await this.productService.findProductById(
+        productId
+      );
+      if (!existingProduct) {
+        return this.httpResponse.NotFound(res, "Producto no encontrado");
+      }
+      //Imagenes activas del producto
+      const productImages = existingProduct.images.filter(
+        (image) => image.state === true
+      );
+
+      const existingImage = await this.imageService.findImagesById(imageId);
+      if (!existingImage) {
         return this.httpResponse.NotFound(res, "Imagen no encontrada");
       }
 
-      //Eiminar de base de datos
-      const deletedImage = await this.imageService.deleteImage(id);
+      if (productImages.length <= 1) {
+        return this.httpResponse.BadRequest(
+          res,
+          "No puedes eliminar todas las imágenes de un producto, debe tener al menos 1"
+        );
+      }
+
+      //Eliminar de base de datos
+      const deletedImage = await this.imageService.deleteImage(imageId);
       if (!deletedImage) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }

@@ -11,18 +11,21 @@ export class ImageRoute extends BaseRouter<ImageController, ImageMiddleware> {
   routes(): void {
     this.router.post(
       "/images/:productId",
-      // this.middleware.checkJsonWebToken,
+      this.middleware.checkJsonWebToken,
+      this.middleware.checkAdminRole.bind(this.middleware),
       this.middleware.fileValidator.bind(this.middleware),
       (req, res) => this.controller.createImage(req, res)
     );
     this.router.get(
       "/images/:productId",
-      // this.middleware.checkJsonWebToken,
+      this.middleware.checkJsonWebToken,
+      this.middleware.checkAdminRole.bind(this.middleware),
       (req, res) => this.controller.getImages(req, res)
     );
     this.router.delete(
-      "/images/:id",
-      // this.middleware.checkJsonWebToken,
+      "/images/:productId/delete/:imageId",
+      this.middleware.checkJsonWebToken,
+      this.middleware.checkAdminRole.bind(this.middleware),
       (req, res) => this.controller.deleteImage(req, res)
     );
   }

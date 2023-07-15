@@ -12,13 +12,14 @@ export class ImageService extends BaseService<ImageEntity> {
     return (await this.execRepository)
       .createQueryBuilder("images")
       .leftJoin("images.product", "product")
-      .where("product.id = :id", { id })
+      .where({ state: true })
+      .andWhere("product.id = :id", { id })
       .getMany();
   }
   async findImagesById(id: string): Promise<ImageEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("product_images")
-      .where({ id })
+      .where({ id, state: true })
       .getOne();
   }
 
