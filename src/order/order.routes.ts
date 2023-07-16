@@ -18,14 +18,12 @@ export class OrderRoute extends BaseRouter<OrderController, OrderMiddleware> {
     this.router.post(
       "/createOrder",
       this.middleware.checkJsonWebToken,
-      // this.middleware.orderValidator.bind(this.middleware),
       (req, res) => this.controller.createOrder(req, res)
     );
-    this.router.put("/updateOrder/:id", (req, res) =>
-      this.controller.updateOrder(req, res)
-    );
-    this.router.delete("/deleteOrder/:id", (req, res) =>
-      this.controller.deleteOrder(req, res)
+    this.router.put(
+      "/cancelOrder/:id",
+      this.middleware.checkJsonWebToken,
+      (req, res) => this.controller.cancelOrder(req, res)
     );
   }
 }

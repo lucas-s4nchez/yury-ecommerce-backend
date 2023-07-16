@@ -41,6 +41,9 @@ export class OrderEntity extends BaseEntity {
   @Column({ type: Boolean, default: false })
   isPaid!: boolean;
 
+  @Column({ type: Boolean, default: false })
+  isDelivered!: boolean;
+
   @Column()
   totalPrice!: number;
 

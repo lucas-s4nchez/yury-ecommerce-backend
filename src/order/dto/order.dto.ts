@@ -40,6 +40,9 @@ export class OrderDTO extends BaseDTO {
   isPaid!: boolean;
 
   @IsOptional()
+  isDelivered!: boolean;
+
+  @IsOptional()
   status!: OrderStatusType;
 }
 

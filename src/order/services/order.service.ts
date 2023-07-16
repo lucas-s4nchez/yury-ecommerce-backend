@@ -1,7 +1,6 @@
-import { DeleteResult, UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { OrderEntity } from "../entities/order.entity";
-import { OrderDTO } from "../dto/order.dto";
+import { OrderDTO, OrderStatusType } from "../dto/order.dto";
 import { AppDataSource } from "../../config/data.source";
 import { CartEntity } from "../../cart/entities/cart.entity";
 import { OrderItemEntity } from "../entities/order-item.entity";
@@ -81,5 +80,13 @@ export class OrderService extends BaseService<OrderEntity> {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async cancelOrder(order: OrderEntity): Promise<OrderEntity> {
+    (order.isPaid = false),
+      (order.status = OrderStatusType.CANCELED),
+      (order.isDelivered = false);
+    //Todo:Devolver la cantidad de productos comprados al stock
+    return (await this.execRepository).save(order);
   }
 }

@@ -18,14 +18,5 @@ export class OrderItemRoute extends BaseRouter<
     this.router.get("/orderItem/:id", (req, res) =>
       this.controller.getOrderItemById(req, res)
     );
-    this.router.post("/createOrderItem", (req, res) =>
-      this.controller.createOrderItem(req, res)
-    );
-    this.router.put("/updateOrderItem/:id", (req, res) =>
-      this.controller.updateOrderItem(req, res)
-    );
-    this.router.delete("/deleteOrderItem/:id", (req, res) =>
-      this.controller.deleteOrderItem(req, res)
-    );
   }
 }

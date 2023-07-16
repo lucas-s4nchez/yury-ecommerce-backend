@@ -1,9 +1,7 @@
-import { NextFunction, Request, Response } from "express";
-import { validate } from "class-validator";
-import { HttpResponse } from "../../shared/response/http.response";
+import { SharedMiddleware } from "../../shared/middlewares/shared.middleware";
 
-export class OrderItemMiddleware {
-  constructor(
-    private readonly httpResponse: HttpResponse = new HttpResponse()
-  ) {}
+export class OrderItemMiddleware extends SharedMiddleware {
+  constructor() {
+    super();
+  }
 }

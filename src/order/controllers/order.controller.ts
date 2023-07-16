@@ -86,4 +86,24 @@ export class OrderController {
       return this.httpResponse.Error(res, e);
     }
   }
+
+  async cancelOrder(req: Request, res: Response) {
+    const { id } = req.params;
+
+    try {
+      const existingOrder = await this.orderService.findOrderById(id);
+
+      if (!existingOrder) {
+        return this.httpResponse.NotFound(res, "Orden no encontrada");
+      }
+      const updatedOrder = await this.orderService.cancelOrder(existingOrder);
+      if (!updatedOrder) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(res, existingOrder);
+    } catch (e) {
+      console.log(e);
+      return this.httpResponse.Error(res, e);
+    }
+  }
 }
