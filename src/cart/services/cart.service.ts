@@ -15,6 +15,7 @@ export class CartService extends BaseService<CartEntity> {
       .leftJoinAndSelect("cartItem.product", "product")
       .leftJoinAndSelect("product.brand", "brand")
       .leftJoinAndSelect("product.stock", "stock")
+      .leftJoinAndSelect("product.images", "images")
       .leftJoinAndSelect("cartItem.size", "size")
       .leftJoinAndSelect("cart.user", "user")
       .where({ id })

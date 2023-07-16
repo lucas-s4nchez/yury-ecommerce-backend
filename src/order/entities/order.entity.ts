@@ -25,7 +25,7 @@ export class OrderEntity extends BaseEntity {
   address!: string;
 
   @Column()
-  dni!: number;
+  dni!: string;
 
   @Column()
   phone!: string;
@@ -42,7 +42,7 @@ export class OrderEntity extends BaseEntity {
   isPaid!: boolean;
 
   @Column()
-  total!: number;
+  totalPrice!: number;
 
   @ManyToOne(() => UserEntity, (user) => user.orders)
   @JoinColumn({ name: "user_id" })

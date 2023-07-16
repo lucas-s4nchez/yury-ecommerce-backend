@@ -38,15 +38,15 @@ export class OrderItemEntity extends BaseEntity {
   @JoinColumn({ name: "product_id" })
   product!: ProductEntity;
 
-  @AfterLoad()
-  @BeforeInsert()
-  setProperties(): void {
-    if (this.product && this.product.images && this.product.images.length > 0) {
-      this.setImage();
-    }
-  }
+  // @AfterLoad()
+  // @BeforeInsert()
+  // setProperties(): void {
+  //   if (this.product && this.product.images && this.product.images.length > 0) {
+  //     this.setImage();
+  //   }
+  // }
 
-  setImage(): void {
-    this.image = this.product?.images[0].url;
-  }
+  // setImage(): void {
+  //   this.image = this.product?.images[0].url;
+  // }
 }

@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
-import { DeleteResult, UpdateResult } from "typeorm";
 import { OrderService } from "../services/order.service";
 import { OrderDTO } from "../dto/order.dto";
 import { validate } from "class-validator";
@@ -41,49 +40,49 @@ export class OrderController {
   }
 
   async createOrder(req: Request, res: Response) {
-    const orderData = req.body;
-    try {
-      const orderDTO = new OrderDTO();
-      Object.assign(orderDTO, orderData);
+    const { name, lastName, email, province, city, address, phone, dni } =
+      req.user;
+    const { totalPrice, totalItems } = req.cart;
 
-      const errors = await validate(orderDTO);
-      if (errors.length > 0) {
-        return this.httpResponse.BadRequest(res, errors);
-      }
-      const data = await this.orderService.createOrder(orderData);
-      return this.httpResponse.Ok(res, data);
+    try {
+      const validOrder = new OrderDTO();
+      validOrder.name = name;
+      validOrder.lastName = lastName;
+      validOrder.email = email;
+      validOrder.province = province;
+      validOrder.city = city;
+      validOrder.address = address;
+      validOrder.phone = phone;
+      validOrder.dni = dni;
+      validOrder.totalPrice = totalPrice;
+      validOrder.totalItems = totalItems;
+      validOrder.user = req.user;
+
+      validate(validOrder).then(async (err) => {
+        if (err.length > 0) {
+          const formattedErrors = err.map((error) => ({
+            property: error.property,
+            errors: Object.keys(error.constraints!).map(
+              (key) => error.constraints![key]
+            ),
+          }));
+          return this.httpResponse.BadRequest(res, formattedErrors);
+        } else {
+          const order = await this.orderService.createOrder(
+            validOrder,
+            req.cart
+          );
+          if (!order) {
+            return this.httpResponse.BadRequest(
+              res,
+              "Hubo un error al crear la orden, verifica que los productos que intentas comprar tengan stock disponible"
+            );
+          }
+          return this.httpResponse.Ok(res, order);
+        }
+      });
     } catch (e) {
       console.log(e);
-      return this.httpResponse.Error(res, e);
-    }
-  }
-
-  async updateOrder(req: Request, res: Response) {
-    const { id } = req.params;
-    const orderData = req.body;
-    try {
-      const data: UpdateResult = await this.orderService.updateOrder(
-        id,
-        orderData
-      );
-      if (!data.affected) {
-        return this.httpResponse.NotFound(res, "Error al actualizar");
-      }
-      return this.httpResponse.Ok(res, data);
-    } catch (e) {
-      return this.httpResponse.Error(res, e);
-    }
-  }
-
-  async deleteOrder(req: Request, res: Response) {
-    const { id } = req.params;
-    try {
-      const data: DeleteResult = await this.orderService.deleteOrder(id);
-      if (!data.affected) {
-        return this.httpResponse.NotFound(res, "Error al eliminar");
-      }
-      return this.httpResponse.Ok(res, data);
-    } catch (e) {
       return this.httpResponse.Error(res, e);
     }
   }

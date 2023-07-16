@@ -190,8 +190,8 @@ export class ProductService extends BaseService<ProductEntity> {
     if (!existingProduct) {
       return null;
     }
-    // Crear un query runner
 
+    // Crear un query runner
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();

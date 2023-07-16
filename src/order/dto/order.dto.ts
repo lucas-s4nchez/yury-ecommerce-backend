@@ -22,13 +22,13 @@ export class OrderDTO extends BaseDTO {
   address!: string;
 
   @IsNotEmpty()
-  dni!: number;
+  dni!: string;
 
   @IsNotEmpty()
   phone!: string;
 
   @IsNotEmpty()
-  total!: number;
+  totalPrice!: number;
 
   @IsNotEmpty()
   user!: UserEntity;

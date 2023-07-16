@@ -6,10 +6,12 @@ import { PayloadToken } from "../../auth/interfaces/auth.interface";
 import { RoleType } from "../../user/types/role.types";
 import { UserEntity } from "../../user/entities/user.entity";
 import { HttpResponse } from "../response/http.response";
+import { CartService } from "../../cart/services/cart.service";
 
 export class SharedMiddleware extends ConfigServer {
   constructor(
     private readonly userService: UserService = new UserService(),
+    private readonly cartService: CartService = new CartService(),
     public httpResponse: HttpResponse = new HttpResponse(),
     private readonly jwtInstance = jwt
   ) {
@@ -45,9 +47,11 @@ export class SharedMiddleware extends ConfigServer {
       if (!user) {
         return this.httpResponse.Unauthorized(res, "Token no válido");
       }
+      const cart = await this.cartService.findCartById(user.cart.id);
 
       //guarda el usuario autenticado en el req.user
       req.user = user;
+      req.cart = cart!;
 
       next();
     } catch (error) {

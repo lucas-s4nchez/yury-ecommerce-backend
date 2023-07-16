@@ -44,7 +44,7 @@ export class UserEntity extends BaseEntity {
   })
   role!: RoleType;
 
-  @OneToMany(() => OrderEntity, (order) => order.user)
+  @OneToMany(() => OrderEntity, (order) => order.user, { onDelete: "CASCADE" })
   orders!: OrderEntity[];
 
   @OneToOne(() => CartEntity, (cart) => cart.user, { onDelete: "CASCADE" })
