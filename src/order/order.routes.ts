@@ -12,18 +12,21 @@ export class OrderRoute extends BaseRouter<OrderController, OrderMiddleware> {
     this.router.get("/orders", (req, res) =>
       this.controller.getOrders(req, res)
     );
-    this.router.get("/order/:id", (req, res) =>
+    this.router.get("/orders/:id", (req, res) =>
       this.controller.getOrderById(req, res)
     );
-    this.router.post(
-      "/createOrder",
-      this.middleware.checkJsonWebToken,
-      (req, res) => this.controller.createOrder(req, res)
+    this.router.post("/orders", this.middleware.checkJsonWebToken, (req, res) =>
+      this.controller.createOrder(req, res)
     );
     this.router.put(
       "/cancelOrder/:id",
       this.middleware.checkJsonWebToken,
       (req, res) => this.controller.cancelOrder(req, res)
+    );
+    this.router.put(
+      "/completeOrder/:id",
+      this.middleware.checkJsonWebToken,
+      (req, res) => this.controller.completeOrder(req, res)
     );
   }
 }

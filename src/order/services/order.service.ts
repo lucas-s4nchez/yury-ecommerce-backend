@@ -18,6 +18,7 @@ export class OrderService extends BaseService<OrderEntity> {
       .leftJoinAndSelect("orders.orderItems", "orderItems")
       .getManyAndCount();
   }
+
   async findOrderById(id: string): Promise<OrderEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("orders")
@@ -26,6 +27,16 @@ export class OrderService extends BaseService<OrderEntity> {
       .where({ id })
       .getOne();
   }
+
+  async findPendingOrderById(id: string): Promise<OrderEntity | null> {
+    return (await this.execRepository)
+      .createQueryBuilder("orders")
+      .leftJoinAndSelect("orders.user", "user")
+      .leftJoinAndSelect("orders.orderItems", "orderItems")
+      .where({ id, status: OrderStatusType.PENDING })
+      .getOne();
+  }
+
   async createOrder(
     orderData: OrderDTO,
     cart: CartEntity
@@ -82,11 +93,58 @@ export class OrderService extends BaseService<OrderEntity> {
     }
   }
 
-  async cancelOrder(order: OrderEntity): Promise<OrderEntity> {
-    (order.isPaid = false),
-      (order.status = OrderStatusType.CANCELED),
-      (order.isDelivered = false);
-    //Todo:Devolver la cantidad de productos comprados al stock
-    return (await this.execRepository).save(order);
+  async cancelOrder(order: OrderEntity): Promise<OrderEntity | null> {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      //Devolver la cantidad de productos comprados al stock
+      const orderItems = await queryRunner.manager.find(OrderItemEntity, {
+        where: {
+          order: { id: order.id },
+        },
+        relations: ["product", "product.stock"],
+      });
+
+      for (const orderItem of orderItems) {
+        const stock = await queryRunner.manager.findOneBy(StockEntity, {
+          id: orderItem.product.stock.id,
+        });
+        const quantity = orderItem.quantity;
+
+        // Verificar que el stock exista y actualizar la cantidad
+        if (stock) {
+          // Actualizar el stock del producto sumando la cantidad cancelada
+          stock.quantity += quantity;
+          // Guardar el stock actualizado en la base de datos
+          await queryRunner.manager.save(stock);
+        }
+      }
+
+      //Actualizar propiedades de la orden (cancelar la orden)
+      (order.isPaid = false),
+        (order.status = OrderStatusType.CANCELED),
+        (order.isDelivered = false);
+      const savedOrder = await queryRunner.manager.save(order);
+
+      await queryRunner.commitTransaction();
+      return savedOrder;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      return null;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async completeOrder(order: OrderEntity): Promise<OrderEntity | null> {
+    try {
+      order.status = OrderStatusType.COMPLETED;
+      const completedOrder = (await this.execRepository).save(order);
+      return completedOrder;
+    } catch (error) {
+      return null;
+    }
   }
 }
