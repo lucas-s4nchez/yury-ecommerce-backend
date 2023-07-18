@@ -8,7 +8,6 @@ import { ConfigServer } from "./config/config";
 import { CategoryRoute } from "./category/category.routes";
 import { ProductRoute } from "./product/product.routes";
 import { OrderRoute } from "./order/order.routes";
-import { OrderItemRoute } from "./order/order-item.routes";
 import { AuthRoute } from "./auth/auth.routes";
 import fileUpload from "express-fileupload";
 import { v2 as cloudinary } from "cloudinary";
@@ -76,7 +75,6 @@ class ServerBootstrap extends ConfigServer {
       new SizeRoute().router,
       new ColorRoute().router,
       new OrderRoute().router,
-      new OrderItemRoute().router,
       new AuthRoute().router,
       new CartRoute().router,
       new CartItemRoute().router,
