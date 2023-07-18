@@ -51,7 +51,11 @@ export class OrderService extends BaseService<OrderEntity> {
       Object.assign(newOrder, orderData);
       //Guardar la orden
       const savedOrder = await queryRunner.manager.save(newOrder);
-      //Crear los orderItems y guardarlos
+      //Verificar que existen items en el carrito
+      if (!cart.cartItems.length) {
+        throw new Error(`No hay productos en el carrito`);
+      }
+      //Crear los orderItems a partir de los cartItems y guardarlos
       for (const cartItem of cart.cartItems) {
         const newOrderItem = new OrderItemEntity();
         newOrderItem.name = cartItem.product.name;
@@ -72,6 +76,11 @@ export class OrderService extends BaseService<OrderEntity> {
           throw new Error(
             `No hay suficiente stock disponible para el producto: ${cartItem.product.name}`
           );
+        }
+
+        //Verificar que el producto este disponible
+        if (!newOrderItem.product.available) {
+          throw new Error(`El producto no está disponible`);
         }
 
         // Actualizar el stock del producto
