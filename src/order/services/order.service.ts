@@ -61,6 +61,7 @@ export class OrderService extends BaseService<OrderEntity> {
         newOrderItem.name = cartItem.product.name;
         newOrderItem.description = cartItem.product.description;
         newOrderItem.price = cartItem.product.price;
+        newOrderItem.size = cartItem.size.number;
         newOrderItem.quantity = cartItem.quantity;
         newOrderItem.subtotal = cartItem.subtotalPrice;
         newOrderItem.product = cartItem.product;

@@ -22,6 +22,9 @@ export class OrderItemEntity extends BaseEntity {
   price!: number;
 
   @Column()
+  size!: number;
+
+  @Column()
   quantity!: number;
 
   @Column()
@@ -37,16 +40,4 @@ export class OrderItemEntity extends BaseEntity {
   @ManyToOne(() => ProductEntity, (product) => product.orderItems)
   @JoinColumn({ name: "product_id" })
   product!: ProductEntity;
-
-  // @AfterLoad()
-  // @BeforeInsert()
-  // setProperties(): void {
-  //   if (this.product && this.product.images && this.product.images.length > 0) {
-  //     this.setImage();
-  //   }
-  // }
-
-  // setImage(): void {
-  //   this.image = this.product?.images[0].url;
-  // }
 }
