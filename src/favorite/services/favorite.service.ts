@@ -17,10 +17,12 @@ export class FavoriteService extends BaseService<FavoriteEntity> {
     const skipCount = (page - 1) * limit;
     const [favorites, count] = await (await this.execRepository)
       .createQueryBuilder("favorites")
+      .leftJoinAndSelect("favorites.product", "product")
       .orderBy("favorites.createdAt", order)
       .skip(skipCount)
       .take(limit)
       .where({ state: true })
+      .andWhere("product.available = :available", { available: true })
       .getManyAndCount();
 
     const totalPages = Math.ceil(count / limit);
@@ -31,7 +33,18 @@ export class FavoriteService extends BaseService<FavoriteEntity> {
   async findFavoriteById(id: string): Promise<FavoriteEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("favorite")
+      .leftJoinAndSelect("favorite.product", "product")
       .where({ id, state: true })
+      .andWhere("product.available = :available", { available: true })
+      .getOne();
+  }
+
+  async findFavoriteByUserId(id: string): Promise<FavoriteEntity | null> {
+    return (await this.execRepository)
+      .createQueryBuilder("favorite")
+      .leftJoinAndSelect("favorite.product", "product")
+      .where({ user: id, state: true })
+      .andWhere("product.available = :available", { available: true })
       .getOne();
   }
 

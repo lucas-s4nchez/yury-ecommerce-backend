@@ -13,6 +13,7 @@ export class FavoriteMiddleware extends SharedMiddleware {
     const validfavorite = new FavoriteDTO();
 
     validfavorite.product = product;
+    validfavorite.user = req.user;
 
     validate(validfavorite).then((err) => {
       if (err.length > 0) {

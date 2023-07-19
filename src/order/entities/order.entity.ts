@@ -51,7 +51,9 @@ export class OrderEntity extends BaseEntity {
   @JoinColumn({ name: "user_id" })
   user!: UserEntity;
 
-  @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.order)
+  @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.order, {
+    onDelete: "CASCADE",
+  })
   orderItems!: OrderItemEntity[];
 
   @Column()

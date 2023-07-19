@@ -60,10 +60,26 @@ export class FavoriteController {
   }
   async createFavorite(req: Request, res: Response) {
     const favoriteData = req.body;
+    favoriteData.user = req.user;
 
     try {
+      const existingFavorite = await this.favoriteService.findFavoriteByUserId(
+        favoriteData.user.id
+      );
+      if (existingFavorite) {
+        return this.httpResponse.BadRequest(
+          res,
+          "Este producto ya se encuentra en tu lista de favoritos"
+        );
+      }
       const data = await this.favoriteService.createFavorite(favoriteData);
-      return this.httpResponse.Ok(res, data);
+      if (!data) {
+        return this.httpResponse.BadRequest(
+          res,
+          "Error al agregar el producto a favoritos"
+        );
+      }
+      return this.httpResponse.Ok(res, "Producto agregado a favoritos");
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }
