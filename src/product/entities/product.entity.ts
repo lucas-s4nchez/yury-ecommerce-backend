@@ -17,6 +17,7 @@ import { SizeEntity } from "../../size/entities/size.entity";
 import { ColorEntity } from "../../colors/entities/color.entity";
 import { CartItemEntity } from "../../cart/entities/cartItem.entity";
 import { ImageEntity } from "../../image/entities/image.entity";
+import { FavoriteEntity } from "../../favorite/entities/favorite.entity";
 
 @Entity({ name: "product" })
 export class ProductEntity extends BaseEntity {
@@ -83,6 +84,9 @@ export class ProductEntity extends BaseEntity {
 
   @OneToMany(() => CartItemEntity, (cartItem) => cartItem.product)
   cartItems!: CartItemEntity[];
+
+  @OneToMany(() => FavoriteEntity, (favorite) => favorite.product)
+  favorites!: FavoriteEntity[];
 
   @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.product)
   orderItems!: OrderItemEntity[];
