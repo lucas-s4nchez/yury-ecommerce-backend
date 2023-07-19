@@ -14,7 +14,9 @@ export class IsProductExistingConstraint
   constructor(private readonly productService: ProductService) {}
 
   async validate(product: string, args: ValidationArguments) {
-    const existingProduct = await this.productService.findProductById(product);
+    const existingProduct = await this.productService.findAvailableProductById(
+      product
+    );
     return !!existingProduct; // Devuelve verdadero si el producto existe, falso si no existe
   }
 

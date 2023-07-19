@@ -27,7 +27,7 @@ export class CartItemService extends BaseService<CartItemEntity> {
   ): Promise<CartItemEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("cartItem")
-      .leftJoinAndSelect("cartItems.size", "size")
+      .leftJoinAndSelect("cartItem.size", "size")
       .leftJoinAndSelect("cartItem.product", "product")
       .leftJoinAndSelect("product.stock", "stock")
       .leftJoinAndSelect("product.brand", "brand")

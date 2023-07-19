@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { SharedMiddleware } from "../../shared/middlewares/shared.middleware";
 import { validate } from "class-validator";
-import { CartDTO } from "../dto/cart.dto";
 import { CartItemDTO } from "../dto/cartItem.dto";
 
 export class CartItemMiddleware extends SharedMiddleware {

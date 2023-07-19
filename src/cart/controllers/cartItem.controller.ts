@@ -5,13 +5,14 @@ import { CartItemService } from "../services/cartItem.service";
 import { ProductService } from "../../product/services/product.service";
 import { CartService } from "../services/cart.service";
 import { SizeService } from "../../size/services/size.service";
+import { StockService } from "../../stock/services/stock.service";
 
 export class CartItemController {
   constructor(
     private readonly cartItemService: CartItemService = new CartItemService(),
     private readonly cartService: CartService = new CartService(),
     private readonly productService: ProductService = new ProductService(),
-    private readonly sizeService: SizeService = new SizeService(),
+    private readonly stockService: StockService = new StockService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
@@ -54,6 +55,21 @@ export class CartItemController {
     const cartItemData = req.body;
 
     try {
+      //Verificar si existe el stock del producto
+      const productStock = await this.stockService.findStockByProduct(
+        cartItemData.product
+      );
+      if (!productStock) {
+        return this.httpResponse.NotFound(res, "No hay stock de este producto");
+      }
+      //Verificar si la cantidad no supera el stock
+      if (cartItemData.quantity > productStock.quantity) {
+        return this.httpResponse.BadRequest(
+          res,
+          "No hay stock suficiente del producto"
+        );
+      }
+      //Verificar si ya existe el producto en el carrito
       const existingCartItem =
         await this.cartItemService.findCartItemByCartIdAndProductIdAndSizeId(
           cartItemData.cart,
@@ -61,7 +77,18 @@ export class CartItemController {
           cartItemData.size
         );
 
+      //Si existe aumentar la cantidad
       if (existingCartItem) {
+        //Verificar si la cantidad no supera el stock
+        if (
+          existingCartItem.quantity + cartItemData.quantity >
+          existingCartItem.product.stock.quantity
+        ) {
+          return this.httpResponse.BadRequest(
+            res,
+            "No hay stock suficiente del producto"
+          );
+        }
         existingCartItem.quantity += cartItemData.quantity;
         const data = await this.cartItemService.updateCartItem(
           existingCartItem
@@ -70,6 +97,7 @@ export class CartItemController {
         await this.cartService.updateCartInfo(cartItemData.cart);
         return this.httpResponse.Ok(res, data);
       } else {
+        //Si no existe agregarlo al carrito
         const data = await this.cartItemService.createCartItem(cartItemData);
         // Actualizar el cart relacionado
         await this.cartService.updateCartInfo(cartItemData.cart);
@@ -94,6 +122,17 @@ export class CartItemController {
         return this.httpResponse.NotFound(
           res,
           "No existe este producto en el carrito"
+        );
+      }
+
+      //Verificar si la cantidad no supera el stock
+      if (
+        existingCartItem.quantity + 1 >
+        existingCartItem.product.stock.quantity
+      ) {
+        return this.httpResponse.BadRequest(
+          res,
+          "No hay stock suficiente del producto"
         );
       }
       existingCartItem.quantity += 1;
