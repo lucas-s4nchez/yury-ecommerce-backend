@@ -141,7 +141,7 @@ export class ProductController {
       if (!existingProduct.images.length) {
         return this.httpResponse.BadRequest(
           res,
-          `El producto debe al menos una imagen`
+          `El producto debe tener al menos una imagen`
         );
       }
       const data = await this.productService.productIsAvailable(id, true);

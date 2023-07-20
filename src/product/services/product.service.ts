@@ -8,6 +8,7 @@ import { CartItemService } from "../../cart/services/cartItem.service";
 import { AppDataSource } from "../../config/data.source";
 import { ImageEntity } from "../../image/entities/image.entity";
 import { StockEntity } from "../../stock/entities/stock.entity";
+import { CartItemEntity } from "../../cart/entities/cartItem.entity";
 
 export class ProductService extends BaseService<ProductEntity> {
   constructor() {
@@ -114,6 +115,7 @@ export class ProductService extends BaseService<ProductEntity> {
       .leftJoinAndSelect("product.colors", "colors")
       .leftJoinAndSelect("product.brand", "brand")
       .leftJoinAndSelect("product.cartItems", "cartItems")
+      .leftJoinAndSelect("product.favorites", "favorites")
       .where({ id, state: true })
       .getOne();
   }
@@ -167,19 +169,52 @@ export class ProductService extends BaseService<ProductEntity> {
   async productIsAvailable(
     id: string,
     isAvailable: boolean
-  ): Promise<ProductEntity> {
+  ): Promise<ProductEntity | null> {
     // Obtener el producto existente
-    const existingProduct = await this.findProductById(id);
+    const existingProduct = await this.findProductByIdForDelete(id);
     if (!existingProduct) {
-      throw new Error("Producto no encontrado");
+      return null;
+    }
+    // Iniciar un query runner
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Actualizar la propiedad "available" del producto
+      existingProduct.available = isAvailable;
+
+      // Si isAvailable es "false", eliminar los cartItems relacionados al producto
+      if (!isAvailable) {
+        await queryRunner.manager
+          .createQueryBuilder()
+          .delete()
+          .from(CartItemEntity)
+          .where("product = :productId", { productId: existingProduct.id })
+          .execute();
+      }
+
+      // Guardar los cambios en la base de datos
+      const updateResult = await queryRunner.manager.save(existingProduct);
+
+      // Commit de la transacción
+      await queryRunner.commitTransaction();
+
+      return updateResult;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      return null;
+    } finally {
+      await queryRunner.release();
     }
 
-    // Actualizar la propiedad "available" del producto
-    existingProduct.available = isAvailable;
+    // // Actualizar la propiedad "available" del producto
+    // existingProduct.available = isAvailable;
+    // //Todo: Si isAvailable es "false" eliminar los cartItems reacionados al producto (con un query runner)
 
-    // Guardar los cambios en la base de datos
-    const updateResult = (await this.execRepository).save(existingProduct);
-    return updateResult;
+    // // Guardar los cambios en la base de datos
+    // const updateResult = (await this.execRepository).save(existingProduct);
+    // return updateResult;
   }
 
   async deleteProductAndRelatedEntities(
@@ -229,8 +264,18 @@ export class ProductService extends BaseService<ProductEntity> {
         }
       }
 
+      // Eliminar los favoritos relacionados al producto
+      const favorites = existingProduct.favorites;
+      console.log(favorites);
+      if (favorites) {
+        for (const favorite of favorites) {
+          await queryRunner.manager.remove(favorite);
+        }
+      }
+
       // Actualizar el estado del producto
       existingProduct.state = false;
+      existingProduct.available = false;
 
       // Guardar los cambios en la base de datos
       const updateResult = await queryRunner.manager.save(existingProduct);
