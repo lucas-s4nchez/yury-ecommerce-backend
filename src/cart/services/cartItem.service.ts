@@ -58,12 +58,16 @@ export class CartItemService extends BaseService<CartItemEntity> {
   }
 
   async findCartItemByProductId(
+    cartId: string,
     productId: string
   ): Promise<CartItemEntity | null> {
     return (await this.execRepository)
       .createQueryBuilder("cartItem")
       .where("cartItem.product = :productId", {
         productId,
+      })
+      .andWhere("cartItem.cart = :cartId", {
+        cartId,
       })
       .leftJoinAndSelect("cartItem.product", "product")
       .leftJoinAndSelect("product.stock", "stock")
@@ -73,12 +77,16 @@ export class CartItemService extends BaseService<CartItemEntity> {
   }
 
   async findCartItemsByProductId(
+    cartId: string,
     productId: string
   ): Promise<CartItemEntity[] | null> {
     return (await this.execRepository)
       .createQueryBuilder("cartItem")
       .where("cartItem.product = :productId", {
         productId,
+      })
+      .andWhere("cartItem.cart = :cartId", {
+        cartId,
       })
       .leftJoinAndSelect("cartItem.product", "product")
       .leftJoinAndSelect("product.stock", "stock")

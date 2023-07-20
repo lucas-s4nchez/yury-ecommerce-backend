@@ -17,11 +17,6 @@ export class FavoriteRoute extends BaseRouter<
       this.middleware.checkJsonWebToken,
       (req, res) => this.controller.getFavorites(req, res)
     );
-    this.router.get(
-      "/favorites/:id",
-      this.middleware.checkJsonWebToken,
-      (req, res) => this.controller.getFavoriteById(req, res)
-    );
     this.router.post(
       "/favorites",
       this.middleware.checkJsonWebToken,

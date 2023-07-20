@@ -18,7 +18,7 @@ import { ColorRoute } from "./colors/color.routes";
 import { CartRoute } from "./cart/cart.routes";
 import { CartItemRoute } from "./cart/cartItem.routes";
 import { ImageRoute } from "./image/image.routes";
-import { FavoriteRoute } from "./favorite/category.routes";
+import { FavoriteRoute } from "./favorite/favorite.routes";
 
 class ServerBootstrap extends ConfigServer {
   public app: express.Application = express();

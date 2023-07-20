@@ -66,12 +66,9 @@ export class UserController {
     const { province, city, address, dni, phone, ...userData } = req.body;
     try {
       const user = await this.userService.createUser(userData);
-      // Crear el carrito y asignarlo al usuario
-      const cart = new CartDTO();
-      cart.user = user;
-      const createdCart = await this.cartService.createCart(cart);
-      user.cart = createdCart;
-      await this.userService.updateUser(user.id, user);
+      if (!user) {
+        return this.httpResponse.BadRequest(res, "Error al crear usuario");
+      }
       return this.httpResponse.Ok(res, "Usuario creado con éxito!");
     } catch (e) {
       console.log(e);
@@ -172,11 +169,11 @@ export class UserController {
   async deleteUser(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const data: DeleteResult = await this.userService.deleteUser(id);
-      if (!data.affected) {
+      const data = await this.userService.deleteUser(id);
+      if (!data) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, "Usuario eliminado");
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }

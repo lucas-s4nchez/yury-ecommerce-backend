@@ -12,7 +12,8 @@ export class FavoriteService extends BaseService<FavoriteEntity> {
   async findAllFavoritesAndPaginate(
     page: number,
     limit: number,
-    order: OrderType
+    order: OrderType,
+    userId: string
   ): Promise<[FavoriteEntity[], number, number]> {
     const skipCount = (page - 1) * limit;
     const [favorites, count] = await (await this.execRepository)
@@ -23,6 +24,7 @@ export class FavoriteService extends BaseService<FavoriteEntity> {
       .take(limit)
       .where({ state: true })
       .andWhere("product.available = :available", { available: true })
+      .andWhere("favorites.user = :userId", { userId })
       .getManyAndCount();
 
     const totalPages = Math.ceil(count / limit);

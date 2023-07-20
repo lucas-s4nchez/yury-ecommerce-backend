@@ -207,14 +207,6 @@ export class ProductService extends BaseService<ProductEntity> {
     } finally {
       await queryRunner.release();
     }
-
-    // // Actualizar la propiedad "available" del producto
-    // existingProduct.available = isAvailable;
-    // //Todo: Si isAvailable es "false" eliminar los cartItems reacionados al producto (con un query runner)
-
-    // // Guardar los cambios en la base de datos
-    // const updateResult = (await this.execRepository).save(existingProduct);
-    // return updateResult;
   }
 
   async deleteProductAndRelatedEntities(
@@ -266,7 +258,6 @@ export class ProductService extends BaseService<ProductEntity> {
 
       // Eliminar los favoritos relacionados al producto
       const favorites = existingProduct.favorites;
-      console.log(favorites);
       if (favorites) {
         for (const favorite of favorites) {
           await queryRunner.manager.remove(favorite);

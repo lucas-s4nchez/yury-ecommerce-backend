@@ -70,6 +70,7 @@ export class CartItemController {
       // Obtener todos los cartItems con el mismo producto
       const cartItemsWithSameProduct =
         await this.cartItemService.findCartItemsByProductId(
+          req.cart.id,
           cartItemData.product
         );
 
@@ -136,6 +137,7 @@ export class CartItemController {
       // Obtener todos los cartItems del producto en el carrito
       const cartItemsWithSameProduct =
         await this.cartItemService.findCartItemsByProductId(
+          req.cart.id,
           existingCartItem.product.id
         );
 

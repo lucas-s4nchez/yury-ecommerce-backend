@@ -31,7 +31,8 @@ export class FavoriteController {
       const data = await this.favoriteService.findAllFavoritesAndPaginate(
         pageNumber,
         limitNumber,
-        order
+        order,
+        req.user.id
       );
 
       if (data[0].length === 0) {
@@ -39,21 +40,6 @@ export class FavoriteController {
       }
       const [favorites, count, totalPages] = data;
       return this.httpResponse.Ok(res, { favorites, count, totalPages });
-    } catch (e) {
-      return this.httpResponse.Error(res, e);
-    }
-  }
-  async getFavoriteById(req: Request, res: Response) {
-    const { id } = req.params;
-    try {
-      const data = await this.favoriteService.findFavoriteById(id);
-      if (!data) {
-        return this.httpResponse.NotFound(
-          res,
-          "No existe este producto en tus favoritos"
-        );
-      }
-      return this.httpResponse.Ok(res, data);
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }
