@@ -57,6 +57,36 @@ export class CartItemService extends BaseService<CartItemEntity> {
       .getOne();
   }
 
+  async findCartItemByProductId(
+    productId: string
+  ): Promise<CartItemEntity | null> {
+    return (await this.execRepository)
+      .createQueryBuilder("cartItem")
+      .where("cartItem.product = :productId", {
+        productId,
+      })
+      .leftJoinAndSelect("cartItem.product", "product")
+      .leftJoinAndSelect("product.stock", "stock")
+      .leftJoinAndSelect("product.brand", "brand")
+      .leftJoinAndSelect("product.sizes", "size")
+      .getOne();
+  }
+
+  async findCartItemsByProductId(
+    productId: string
+  ): Promise<CartItemEntity[] | null> {
+    return (await this.execRepository)
+      .createQueryBuilder("cartItem")
+      .where("cartItem.product = :productId", {
+        productId,
+      })
+      .leftJoinAndSelect("cartItem.product", "product")
+      .leftJoinAndSelect("product.stock", "stock")
+      .leftJoinAndSelect("product.brand", "brand")
+      .leftJoinAndSelect("product.sizes", "size")
+      .getMany();
+  }
+
   async createCartItem(body: CartItemDTO): Promise<CartItemEntity> {
     return await (await this.execRepository).save(body);
   }
