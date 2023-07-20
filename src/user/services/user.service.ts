@@ -55,7 +55,7 @@ export class UserService extends BaseService<UserEntity> {
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.cart", "cart")
       .leftJoinAndSelect("cart.cartItems", "cartItems")
-      .where({ id })
+      .where({ id, state: true })
       .getOne();
   }
 
@@ -65,7 +65,7 @@ export class UserService extends BaseService<UserEntity> {
       .leftJoinAndSelect("user.favorites", "favorites")
       .leftJoinAndSelect("user.cart", "cart")
       .leftJoinAndSelect("cart.cartItems", "cartItems")
-      .where({ id })
+      .where({ id, state: true })
       .getOne();
   }
 

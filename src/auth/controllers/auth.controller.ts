@@ -22,6 +22,11 @@ export class AuthController extends AuthService {
         );
       }
 
+      //Verificar si el usuario no fue eliminado
+      if (!user.state) {
+        return this.httpResponse.Unauthorized(res, "El usuario fue eliminado");
+      }
+
       //Generar json web token
       const data = await this.generateJWT(user);
 

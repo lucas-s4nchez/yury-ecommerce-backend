@@ -47,6 +47,9 @@ export class SharedMiddleware extends ConfigServer {
       if (!user) {
         return this.httpResponse.Unauthorized(res, "Token no válido");
       }
+      if (!user.state) {
+        return this.httpResponse.Unauthorized(res, "Token no válido");
+      }
       const cart = await this.cartService.findCartById(user.cart.id);
 
       //guarda el usuario autenticado en el req.user
