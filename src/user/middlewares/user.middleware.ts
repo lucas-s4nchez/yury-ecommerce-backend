@@ -8,38 +8,11 @@ import {
   UpdateLastNameDTO,
   UpdateNameDTO,
   UpdatePasswordDTO,
-  UpdateUsernameDTO,
 } from "../dto/user.dto";
 
 export class UserMiddleware extends SharedMiddleware {
   constructor() {
     super();
-  }
-
-  createUserValidator(req: Request, res: Response, next: NextFunction) {
-    const { name, lastName, username, email, password, role } = req.body;
-    const validUser = new CreateUserDTO();
-
-    validUser.name = name;
-    validUser.lastName = lastName;
-    validUser.username = username;
-    validUser.email = email;
-    validUser.password = password;
-    validUser.role = role;
-
-    validate(validUser).then((err) => {
-      if (err.length > 0) {
-        const formattedErrors = err.map((error) => ({
-          property: error.property,
-          errors: Object.keys(error.constraints!).map(
-            (key) => error.constraints![key]
-          ),
-        }));
-        return this.httpResponse.BadRequest(res, formattedErrors);
-      } else {
-        next();
-      }
-    });
   }
   updateNameValidator(req: Request, res: Response, next: NextFunction) {
     const { name } = req.body;
@@ -81,26 +54,6 @@ export class UserMiddleware extends SharedMiddleware {
       }
     });
   }
-  updateUsernameValidator(req: Request, res: Response, next: NextFunction) {
-    const { username } = req.body;
-    const validUsername = new UpdateUsernameDTO();
-
-    validUsername.username = username;
-
-    validate(validUsername).then((err) => {
-      if (err.length > 0) {
-        const formattedErrors = err.map((error) => ({
-          property: error.property,
-          errors: Object.keys(error.constraints!).map(
-            (key) => error.constraints![key]
-          ),
-        }));
-        return this.httpResponse.BadRequest(res, formattedErrors);
-      } else {
-        next();
-      }
-    });
-  }
   updateEmailValidator(req: Request, res: Response, next: NextFunction) {
     const { email } = req.body;
     const validEmail = new UpdateEmailDTO();
@@ -122,9 +75,10 @@ export class UserMiddleware extends SharedMiddleware {
     });
   }
   updatePasswordValidator(req: Request, res: Response, next: NextFunction) {
-    const { password } = req.body;
+    const { oldPassword, password } = req.body;
     const validPassword = new UpdatePasswordDTO();
 
+    validPassword.oldPassword = oldPassword;
     validPassword.password = password;
 
     validate(validPassword).then((err) => {

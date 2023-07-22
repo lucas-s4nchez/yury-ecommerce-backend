@@ -14,23 +14,15 @@ export class AuthService extends ConfigServer {
   }
 
   public async validateUser(
-    username: string,
+    email: string,
     password: string
   ): Promise<UserEntity | null> {
-    const userByEmail = await this.userService.findUserByEmail(username);
-    const userByUsername = await this.userService.findUserByUsername(username);
+    const userByEmail = await this.userService.findUserByEmail(email);
 
-    if (userByEmail && userByEmail.email === username) {
+    if (userByEmail && userByEmail.email === email) {
       const isMatch = await bcrypt.compare(password, userByEmail.password);
       if (isMatch) {
         return userByEmail;
-      }
-    }
-
-    if (userByUsername && userByUsername.username === username) {
-      const isMatch = await bcrypt.compare(password, userByUsername.password);
-      if (isMatch) {
-        return userByUsername;
       }
     }
 

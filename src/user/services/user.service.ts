@@ -73,14 +73,6 @@ export class UserService extends BaseService<UserEntity> {
       .getOne();
   }
 
-  async findUserByUsername(username: string): Promise<UserEntity | null> {
-    return (await this.execRepository)
-      .createQueryBuilder("users")
-      .addSelect("users.password")
-      .where({ username })
-      .getOne();
-  }
-
   async createUser(body: CreateUserDTO): Promise<UserEntity | null> {
     // Crear un query runner
     const queryRunner = AppDataSource.createQueryRunner();
@@ -124,14 +116,6 @@ export class UserService extends BaseService<UserEntity> {
     lastName: string
   ): Promise<UserEntity> {
     user.lastName = lastName;
-    return (await this.execRepository).save(user);
-  }
-
-  async updateUsername(
-    user: UserEntity,
-    username: string
-  ): Promise<UserEntity> {
-    user.username = username;
     return (await this.execRepository).save(user);
   }
 

@@ -1,18 +1,19 @@
 import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { AuthService } from "../services/auth.service";
+import { UserService } from "../../user/services/user.service";
 
-export class AuthController extends AuthService {
+export class AuthController {
   constructor(
+    private readonly userService: UserService = new UserService(),
+    private readonly authService: AuthService = new AuthService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
-  ) {
-    super();
-  }
+  ) {}
 
   login = async (req: Request, res: Response) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     try {
-      const user = await this.validateUser(username, password);
+      const user = await this.authService.validateUser(email, password);
 
       //Verificar si existe el usuario y la contraseña coincide
       if (!user) {
@@ -28,9 +29,23 @@ export class AuthController extends AuthService {
       }
 
       //Generar json web token
-      const data = await this.generateJWT(user);
+      const data = await this.authService.generateJWT(user);
 
       res.json(data);
+    } catch (e) {
+      console.log(e);
+      return this.httpResponse.Error(res, e);
+    }
+  };
+
+  register = async (req: Request, res: Response) => {
+    const { province, city, address, dni, phone, ...userData } = req.body;
+    try {
+      const user = await this.userService.createUser(userData);
+      if (!user) {
+        return this.httpResponse.BadRequest(res, "Error al crear usuario");
+      }
+      return this.httpResponse.Ok(res, "Usuario creado con éxito!");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);

@@ -17,11 +17,6 @@ export class UserRoute extends BaseRouter<UserController, UserMiddleware> {
       this.middleware.checkJsonWebToken,
       (req, res) => this.controller.getUserById(req, res)
     );
-    this.router.post(
-      "/users",
-      this.middleware.createUserValidator.bind(this.middleware),
-      (req, res) => this.controller.createUser(req, res)
-    );
     this.router.put(
       "/users/updateName",
       this.middleware.checkJsonWebToken,
@@ -33,12 +28,6 @@ export class UserRoute extends BaseRouter<UserController, UserMiddleware> {
       this.middleware.checkJsonWebToken,
       this.middleware.updateLastNameValidator.bind(this.middleware),
       (req, res) => this.controller.updateLastName(req, res)
-    );
-    this.router.put(
-      "/users/updateUsername",
-      this.middleware.checkJsonWebToken,
-      this.middleware.updateUsernameValidator.bind(this.middleware),
-      (req, res) => this.controller.updateUsername(req, res)
     );
     this.router.put(
       "/users/updateEmail",

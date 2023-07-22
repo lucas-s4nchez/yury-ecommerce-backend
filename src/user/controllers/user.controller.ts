@@ -1,11 +1,9 @@
+import * as bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { UserService } from "../services/user.service";
 import { HttpResponse } from "../../shared/response/http.response";
-import { DeleteResult, UpdateResult } from "typeorm";
+import { UpdateResult } from "typeorm";
 import { OrderType } from "../../shared/types/shared.types";
-import { CartService } from "../../cart/services/cart.service";
-import { CartEntity } from "../../cart/entities/cart.entity";
-import { CartDTO } from "../../cart/dto/cart.dto";
 
 export class UserController {
   constructor(
@@ -61,20 +59,6 @@ export class UserController {
     }
   }
 
-  async createUser(req: Request, res: Response) {
-    const { province, city, address, dni, phone, ...userData } = req.body;
-    try {
-      const user = await this.userService.createUser(userData);
-      if (!user) {
-        return this.httpResponse.BadRequest(res, "Error al crear usuario");
-      }
-      return this.httpResponse.Ok(res, "Usuario creado con éxito!");
-    } catch (e) {
-      console.log(e);
-      return this.httpResponse.Error(res, e);
-    }
-  }
-
   async updateName(req: Request, res: Response) {
     const userId = req.user.id;
     const { name } = req.body;
@@ -122,45 +106,6 @@ export class UserController {
     }
   }
 
-  async updateUsername(req: Request, res: Response) {
-    const userId = req.user.id;
-    const { username } = req.body;
-    try {
-      const existingUser = await this.userService.findUserById(userId);
-      if (!existingUser) {
-        return this.httpResponse.NotFound(res, "Usuario no encontrado");
-      }
-      // Verificar y actualizar username si es diferente
-      if (username !== existingUser.username) {
-        const isUsernameTaken = await this.userService.findUserByUsername(
-          username
-        );
-        if (isUsernameTaken) {
-          return this.httpResponse.BadRequest(res, [
-            {
-              property: "username",
-              errors: [`El nombre de usuario '${username}' ya está registrado`],
-            },
-          ]);
-        }
-      }
-
-      const data = await this.userService.updateUsername(
-        existingUser,
-        username
-      );
-      if (!data) {
-        return this.httpResponse.NotFound(res, "Error al actualizar");
-      }
-      return this.httpResponse.Ok(
-        res,
-        "El nombre de usuario ha sido actualizado correctamente"
-      );
-    } catch (e) {
-      return this.httpResponse.Error(res, e);
-    }
-  }
-
   async updateEmail(req: Request, res: Response) {
     const userId = req.user.id;
     const { email } = req.body;
@@ -196,12 +141,23 @@ export class UserController {
   }
 
   async updatePassword(req: Request, res: Response) {
-    const userId = req.user.id;
-    const { password } = req.body;
+    const userEmail = req.user.email;
+    const { oldPassword, password } = req.body;
     try {
-      const existingUser = await this.userService.findUserById(userId);
+      const existingUser = await this.userService.findUserByEmail(userEmail);
       if (!existingUser) {
         return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
+
+      const isMatchOldPassword = await bcrypt.compare(
+        oldPassword,
+        existingUser.password
+      );
+      if (!isMatchOldPassword) {
+        return this.httpResponse.BadRequest(
+          res,
+          "La contraseña actual proporcionada no coincide con la de éste usuario, intenta otra vez"
+        );
       }
 
       const data = await this.userService.updatePassword(
@@ -216,6 +172,7 @@ export class UserController {
         "La contraseña ha sido actualizada correctamente"
       );
     } catch (e) {
+      console.log(e);
       return this.httpResponse.Error(res, e);
     }
   }

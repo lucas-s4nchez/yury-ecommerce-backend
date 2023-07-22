@@ -14,9 +14,6 @@ export class UserEntity extends BaseEntity {
   lastName!: string;
 
   @Column({ unique: true })
-  username!: string;
-
-  @Column({ unique: true })
   email!: string;
 
   @Column({ select: false }) //Para que no muestre el password

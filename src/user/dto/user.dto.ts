@@ -12,7 +12,6 @@ import {
 import { BaseDTO } from "../../config/base.dto";
 import { RoleType } from "../types/role.types";
 import { IsEmailUnique } from "../validators/email-unique.validator";
-import { IsUsernameUnique } from "../validators/username-unique.validator";
 import {
   AlphaWithSpecialCharactersRegex,
   AlphanumericWithSpecialCharactersRegex,
@@ -34,18 +33,6 @@ export class CreateUserDTO extends BaseDTO {
     message: "El apellido debe tener entre 3 y 100 caracteres",
   })
   lastName!: string;
-
-  @IsNotEmpty({ message: "El nombre de usuario es requerido" })
-  @IsString({ message: "Tipo de dato incorrecto" })
-  @Matches(AlphanumericWithSpecialCharactersRegex, {
-    message:
-      "El nombre de usuario solo puede contener letras, numeros y caracteres especiales como acentos y diéresis en español",
-  })
-  @Length(3, 20, {
-    message: "El nombre de usuario debe tener entre 3 y 20 caracteres",
-  })
-  @IsUsernameUnique()
-  username!: string;
 
   @IsNotEmpty({ message: "El email es requerido" })
   @IsEmail({}, { message: "El email debe tener un formato válido" })
@@ -86,19 +73,6 @@ export class UpdateLastNameDTO {
   lastName!: string;
 }
 
-export class UpdateUsernameDTO {
-  @IsNotEmpty({ message: "El nombre de usuario es requerido" })
-  @IsString({ message: "Tipo de dato incorrecto" })
-  @Matches(AlphanumericWithSpecialCharactersRegex, {
-    message:
-      "El nombre de usuario solo puede contener letras, numeros y caracteres especiales como acentos y diéresis en español",
-  })
-  @Length(3, 20, {
-    message: "El nombre de usuario debe tener entre 3 y 20 caracteres",
-  })
-  username!: string;
-}
-
 export class UpdateEmailDTO {
   @IsNotEmpty({ message: "El email es requerido" })
   @IsEmail({}, { message: "El email debe tener un formato válido" })
@@ -107,6 +81,9 @@ export class UpdateEmailDTO {
 }
 
 export class UpdatePasswordDTO {
+  @IsNotEmpty({ message: "La anterior contraseña es requerida" })
+  oldPassword!: string;
+
   @IsNotEmpty({ message: "La contraseña es requerida" })
   @Length(8, 20, {
     message: "La contraseña debe tener entre 8 y 20 caracteres",
