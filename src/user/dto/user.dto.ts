@@ -1,5 +1,4 @@
 import {
-  IsAlphanumeric,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -24,9 +23,6 @@ import {
 export class CreateUserDTO extends BaseDTO {
   @IsNotEmpty({ message: "El nombre es requerido" })
   @IsString({ message: "Tipo de dato incorrecto" })
-  @Matches(AlphaWithSpecialCharactersRegex, {
-    message: "El nombre solo puede contener letras",
-  })
   @Length(3, 100, {
     message: "El nombre debe tener entre 3 y 100 caracteres",
   })
@@ -34,9 +30,6 @@ export class CreateUserDTO extends BaseDTO {
 
   @IsNotEmpty({ message: "El apellido es requerido" })
   @IsString({ message: "Tipo de dato incorrecto" })
-  @Matches(AlphaWithSpecialCharactersRegex, {
-    message: "El apelido solo puede contener letras",
-  })
   @Length(3, 100, {
     message: "El apellido debe tener entre 3 y 100 caracteres",
   })
@@ -61,9 +54,6 @@ export class CreateUserDTO extends BaseDTO {
   email!: string;
 
   @IsNotEmpty({ message: "La contraseña es requerida" })
-  @IsAlphanumeric("es-ES", {
-    message: "La contraseña solo puede contener letras y números",
-  })
   @Length(8, 20, {
     message: "La contraseña debe tener entre 8 y 20 caracteres",
   })
@@ -78,37 +68,46 @@ export class CreateUserDTO extends BaseDTO {
   role!: RoleType;
 }
 
-export class UpdateBasicUserDTO extends BaseDTO {
+export class UpdateNameDTO {
   @IsNotEmpty({ message: "El nombre es requerido" })
   @IsString({ message: "Tipo de dato incorrecto" })
   @Length(3, 100, {
     message: "El nombre debe tener entre 3 y 100 caracteres",
   })
   name!: string;
+}
 
+export class UpdateLastNameDTO {
   @IsNotEmpty({ message: "El apellido es requerido" })
   @IsString({ message: "Tipo de dato incorrecto" })
   @Length(3, 100, {
     message: "El apellido debe tener entre 3 y 100 caracteres",
   })
   lastName!: string;
+}
 
+export class UpdateUsernameDTO {
   @IsNotEmpty({ message: "El nombre de usuario es requerido" })
   @IsString({ message: "Tipo de dato incorrecto" })
+  @Matches(AlphanumericWithSpecialCharactersRegex, {
+    message:
+      "El nombre de usuario solo puede contener letras, numeros y caracteres especiales como acentos y diéresis en español",
+  })
   @Length(3, 20, {
     message: "El nombre de usuario debe tener entre 3 y 20 caracteres",
   })
   username!: string;
+}
 
+export class UpdateEmailDTO {
   @IsNotEmpty({ message: "El email es requerido" })
   @IsEmail({}, { message: "El email debe tener un formato válido" })
   @MaxLength(100, { message: "El email no puede exceder los 100 caracteres" })
   email!: string;
+}
 
+export class UpdatePasswordDTO {
   @IsNotEmpty({ message: "La contraseña es requerida" })
-  @IsAlphanumeric("es-ES", {
-    message: "La contraseña solo puede contener letras y números",
-  })
   @Length(8, 20, {
     message: "La contraseña debe tener entre 8 y 20 caracteres",
   })

@@ -1,13 +1,9 @@
-import { DeleteResult, UpdateResult } from "typeorm";
+import { UpdateResult } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { BaseService } from "../../config/base.service";
 import { UserEntity } from "../entities/user.entity";
 import { RoleType } from "../types/role.types";
-import {
-  CreateUserDTO,
-  UpdateAdvancedUserDTO,
-  UpdateBasicUserDTO,
-} from "../dto/user.dto";
+import { CreateUserDTO, UpdateAdvancedUserDTO } from "../dto/user.dto";
 import { OrderType } from "../../shared/types/shared.types";
 import { AppDataSource } from "../../config/data.source";
 import { CartEntity } from "../../cart/entities/cart.entity";
@@ -118,25 +114,39 @@ export class UserService extends BaseService<UserEntity> {
     }
   }
 
-  async updateUserToCustomer(id: string): Promise<any> {
-    return (await this.execRepository).update(
-      { id },
-      { role: RoleType.CUSTOMER }
-    );
+  async updateName(user: UserEntity, name: string): Promise<UserEntity> {
+    user.name = name;
+    return (await this.execRepository).save(user);
   }
 
-  async updateUser(id: string, user: UserEntity): Promise<UpdateResult> {
-    return (await this.execRepository).update({ id }, user);
+  async updateLastName(
+    user: UserEntity,
+    lastName: string
+  ): Promise<UserEntity> {
+    user.lastName = lastName;
+    return (await this.execRepository).save(user);
   }
 
-  async updateBasicUser(
-    id: string,
-    body: UpdateBasicUserDTO
-  ): Promise<UpdateResult> {
-    if (body.password) {
-      body.password = await bcrypt.hash(body.password, 10);
-    }
-    return (await this.execRepository).update({ id }, body);
+  async updateUsername(
+    user: UserEntity,
+    username: string
+  ): Promise<UserEntity> {
+    user.username = username;
+    return (await this.execRepository).save(user);
+  }
+
+  async updateEmail(user: UserEntity, email: string): Promise<UserEntity> {
+    user.email = email;
+    return (await this.execRepository).save(user);
+  }
+
+  async updatePassword(
+    user: UserEntity,
+    password: string
+  ): Promise<UserEntity | null> {
+    const hashPassword = await bcrypt.hash(password, 10);
+    user.password = hashPassword;
+    return (await this.execRepository).save(user);
   }
 
   async updateAdvancedUser(

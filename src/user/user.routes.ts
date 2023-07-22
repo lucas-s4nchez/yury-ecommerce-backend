@@ -19,20 +19,38 @@ export class UserRoute extends BaseRouter<UserController, UserMiddleware> {
     );
     this.router.post(
       "/users",
-      // this.middleware.checkJsonWebToken,
       this.middleware.createUserValidator.bind(this.middleware),
       (req, res) => this.controller.createUser(req, res)
     );
     this.router.put(
-      "/users/updateUserToCustomer/:id",
+      "/users/updateName",
       this.middleware.checkJsonWebToken,
-      (req, res) => this.controller.updateUserToCustomer(req, res)
+      this.middleware.updateNameValidator.bind(this.middleware),
+      (req, res) => this.controller.updateName(req, res)
     );
     this.router.put(
-      "/users/updateBasicUser/:id",
+      "/users/updateLastName",
       this.middleware.checkJsonWebToken,
-      this.middleware.updateBasicUserValidator.bind(this.middleware),
-      (req, res) => this.controller.updateBasicUser(req, res)
+      this.middleware.updateLastNameValidator.bind(this.middleware),
+      (req, res) => this.controller.updateLastName(req, res)
+    );
+    this.router.put(
+      "/users/updateUsername",
+      this.middleware.checkJsonWebToken,
+      this.middleware.updateUsernameValidator.bind(this.middleware),
+      (req, res) => this.controller.updateUsername(req, res)
+    );
+    this.router.put(
+      "/users/updateEmail",
+      this.middleware.checkJsonWebToken,
+      this.middleware.updateEmailValidator.bind(this.middleware),
+      (req, res) => this.controller.updateEmail(req, res)
+    );
+    this.router.put(
+      "/users/updatePassword",
+      this.middleware.checkJsonWebToken,
+      this.middleware.updatePasswordValidator.bind(this.middleware),
+      (req, res) => this.controller.updatePassword(req, res)
     );
     this.router.put(
       "/users/updateAdvancedUser/:id",

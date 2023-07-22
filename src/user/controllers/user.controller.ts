@@ -10,7 +10,6 @@ import { CartDTO } from "../../cart/dto/cart.dto";
 export class UserController {
   constructor(
     private readonly userService: UserService = new UserService(),
-    private readonly cartService: CartService = new CartService(),
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
@@ -76,73 +75,146 @@ export class UserController {
     }
   }
 
-  async updateUserToCustomer(req: Request, res: Response) {
-    const { id } = req.params;
+  async updateName(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { name } = req.body;
     try {
-      const data: UpdateResult = await this.userService.updateUserToCustomer(
-        id
-      );
-      if (!data.affected) {
-        return this.httpResponse.NotFound(
-          res,
-          "Error al actualizar el rol del usuario"
-        );
+      const existingUser = await this.userService.findUserById(userId);
+      if (!existingUser) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
       }
-      return this.httpResponse.Ok(res, data);
+
+      const data = await this.userService.updateName(existingUser, name);
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(
+        res,
+        "El nombre ha sido actualizado correctamente"
+      );
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }
   }
 
-  async updateBasicUser(req: Request, res: Response) {
-    const { id } = req.params;
-    const { province, city, address, dni, phone, ...userData } = req.body;
+  async updateLastName(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { lastName } = req.body;
     try {
-      const existingUser = await this.userService.findUserById(id);
+      const existingUser = await this.userService.findUserById(userId);
       if (!existingUser) {
         return this.httpResponse.NotFound(res, "Usuario no encontrado");
       }
 
+      const data = await this.userService.updateLastName(
+        existingUser,
+        lastName
+      );
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(
+        res,
+        "El apellido ha sido actualizado correctamente"
+      );
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async updateUsername(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { username } = req.body;
+    try {
+      const existingUser = await this.userService.findUserById(userId);
+      if (!existingUser) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
       // Verificar y actualizar username si es diferente
-      if (userData.username !== existingUser.username) {
+      if (username !== existingUser.username) {
         const isUsernameTaken = await this.userService.findUserByUsername(
-          userData.username
+          username
         );
         if (isUsernameTaken) {
           return this.httpResponse.BadRequest(res, [
             {
               property: "username",
-              errors: [
-                `El nombre de usuario '${userData.username}' ya está registrado`,
-              ],
+              errors: [`El nombre de usuario '${username}' ya está registrado`],
             },
           ]);
         }
       }
 
+      const data = await this.userService.updateUsername(
+        existingUser,
+        username
+      );
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(
+        res,
+        "El nombre de usuario ha sido actualizado correctamente"
+      );
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async updateEmail(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { email } = req.body;
+    try {
+      const existingUser = await this.userService.findUserById(userId);
+      if (!existingUser) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
       // Verificar y actualizar email si es diferente
-      if (userData.email !== existingUser.email) {
-        const isEmailTaken = await this.userService.findUserByEmail(
-          userData.email
-        );
+      if (email !== existingUser.email) {
+        const isEmailTaken = await this.userService.findUserByEmail(email);
         if (isEmailTaken) {
           return this.httpResponse.BadRequest(res, [
             {
               property: "email",
-              errors: [`El email '${userData.email}' ya está registrado`],
+              errors: [`El email '${email}' ya está registrado`],
             },
           ]);
         }
       }
 
-      const data: UpdateResult = await this.userService.updateBasicUser(
-        id,
-        userData
-      );
-      if (!data.affected) {
+      const data = await this.userService.updateEmail(existingUser, email);
+      if (!data) {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(
+        res,
+        "El email ha sido actualizado correctamente"
+      );
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async updatePassword(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { password } = req.body;
+    try {
+      const existingUser = await this.userService.findUserById(userId);
+      if (!existingUser) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
+
+      const data = await this.userService.updatePassword(
+        existingUser,
+        password
+      );
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(
+        res,
+        "La contraseña ha sido actualizada correctamente"
+      );
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }
