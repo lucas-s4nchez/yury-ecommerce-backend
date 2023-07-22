@@ -31,7 +31,7 @@ export class AuthController {
       //Generar json web token
       const data = await this.authService.generateJWT(user);
 
-      res.json(data);
+      return this.httpResponse.Ok(res, data);
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);
@@ -46,6 +46,27 @@ export class AuthController {
         return this.httpResponse.BadRequest(res, "Error al crear usuario");
       }
       return this.httpResponse.Ok(res, "Usuario creado con éxito!");
+    } catch (e) {
+      console.log(e);
+      return this.httpResponse.Error(res, e);
+    }
+  };
+
+  refreshToken = async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    try {
+      const user = await this.userService.findUserById(userId);
+      if (!user) {
+        return this.httpResponse.BadRequest(
+          res,
+          "Error al refrescar el token de acceso"
+        );
+      }
+
+      //Generar un jwt
+      const data = await this.authService.generateJWT(user);
+
+      return this.httpResponse.Ok(res, data);
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);

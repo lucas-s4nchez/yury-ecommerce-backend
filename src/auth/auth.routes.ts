@@ -19,5 +19,8 @@ export class AuthRoute extends BaseRouter<AuthController, AuthMiddleware> {
       this.middleware.registerValidator.bind(this.middleware),
       (req, res) => this.controller.register(req, res)
     );
+    this.router.get("/refresh", this.middleware.checkJsonWebToken, (req, res) =>
+      this.controller.refreshToken(req, res)
+    );
   }
 }

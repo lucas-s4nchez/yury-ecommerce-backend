@@ -31,7 +31,7 @@ export class AuthService extends ConfigServer {
 
   signJWT(payoad: jwt.JwtPayload, secret: any) {
     return this.jwtInstance.sign(payoad, secret, {
-      expiresIn: "4h",
+      expiresIn: "12h",
     });
   }
 
