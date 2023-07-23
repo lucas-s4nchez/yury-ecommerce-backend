@@ -1,12 +1,14 @@
-import { UpdateResult } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { BaseService } from "../../config/base.service";
 import { UserEntity } from "../entities/user.entity";
 import { RoleType } from "../types/role.types";
-import { CreateUserDTO, UpdateAdvancedUserDTO } from "../dto/user.dto";
 import { OrderType } from "../../shared/types/shared.types";
 import { AppDataSource } from "../../config/data.source";
 import { CartEntity } from "../../cart/entities/cart.entity";
+import {
+  RegisterUserDTO,
+  UpdateAdvancedUserDTO,
+} from "../../auth/dto/auth.dto";
 
 export class UserService extends BaseService<UserEntity> {
   constructor() {
@@ -26,6 +28,7 @@ export class UserService extends BaseService<UserEntity> {
       .orderBy("users.name", order)
       .skip(skipCount)
       .take(limit)
+      .where({ state: true })
       .getManyAndCount();
 
     const totalPages = Math.ceil(count / limit);
@@ -69,11 +72,11 @@ export class UserService extends BaseService<UserEntity> {
     return (await this.execRepository)
       .createQueryBuilder("users")
       .addSelect("users.password")
-      .where({ email })
+      .where({ email, state: true })
       .getOne();
   }
 
-  async createUser(body: CreateUserDTO): Promise<UserEntity | null> {
+  async createUser(body: RegisterUserDTO): Promise<UserEntity | null> {
     // Crear un query runner
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
@@ -134,10 +137,31 @@ export class UserService extends BaseService<UserEntity> {
   }
 
   async updateAdvancedUser(
-    id: string,
-    body: UpdateAdvancedUserDTO
-  ): Promise<UpdateResult> {
-    return (await this.execRepository).update({ id }, body);
+    user: UserEntity,
+    updateData: UpdateAdvancedUserDTO
+  ): Promise<UserEntity | null> {
+    // Crear un query runner
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Actualizar el objeto user con los datos de updateData
+      Object.assign(user, updateData);
+
+      // Guardar el usuario actualizado
+      const updateResult = await queryRunner.manager.save(user);
+
+      // Commit de la transacción
+      await queryRunner.commitTransaction();
+
+      return updateResult;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      return null;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async deleteUser(id: string): Promise<UserEntity | null> {

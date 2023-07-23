@@ -1,12 +1,11 @@
 import {
-  IsEmail,
   ValidationArguments,
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
   registerDecorator,
 } from "class-validator";
-import { UserService } from "../services/user.service";
+import { UserService } from "../../user/services/user.service";
 
 @ValidatorConstraint({ name: "IsEmailUnique", async: true })
 export class IsEmailUniqueConstraint implements ValidatorConstraintInterface {

@@ -1,3 +1,4 @@
+import * as bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { AuthService } from "../services/auth.service";
@@ -10,7 +11,7 @@ export class AuthController {
     private readonly httpResponse: HttpResponse = new HttpResponse()
   ) {}
 
-  login = async (req: Request, res: Response) => {
+  async login(req: Request, res: Response) {
     const { email, password } = req.body;
     try {
       const user = await this.authService.validateUser(email, password);
@@ -36,9 +37,9 @@ export class AuthController {
       console.log(e);
       return this.httpResponse.Error(res, e);
     }
-  };
+  }
 
-  register = async (req: Request, res: Response) => {
+  async register(req: Request, res: Response) {
     const { province, city, address, dni, phone, ...userData } = req.body;
     try {
       const user = await this.userService.createUser(userData);
@@ -50,9 +51,9 @@ export class AuthController {
       console.log(e);
       return this.httpResponse.Error(res, e);
     }
-  };
+  }
 
-  refreshToken = async (req: Request, res: Response) => {
+  async refreshToken(req: Request, res: Response) {
     const userId = req.user.id;
     try {
       const user = await this.userService.findUserById(userId);
@@ -71,5 +72,179 @@ export class AuthController {
       console.log(e);
       return this.httpResponse.Error(res, e);
     }
-  };
+  }
+
+  async getUserInfo(req: Request, res: Response) {
+    const userId = req.user.id;
+    try {
+      const data = await this.userService.findUserById(userId);
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
+      return this.httpResponse.Ok(res, data);
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async updateName(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { name } = req.body;
+    try {
+      const existingUser = await this.userService.findUserById(userId);
+      if (!existingUser) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
+
+      const data = await this.userService.updateName(existingUser, name);
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(
+        res,
+        "El nombre ha sido actualizado correctamente"
+      );
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async updateLastName(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { lastName } = req.body;
+    try {
+      const existingUser = await this.userService.findUserById(userId);
+      if (!existingUser) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
+
+      const data = await this.userService.updateLastName(
+        existingUser,
+        lastName
+      );
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(
+        res,
+        "El apellido ha sido actualizado correctamente"
+      );
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async updateEmail(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { email } = req.body;
+    try {
+      const existingUser = await this.userService.findUserById(userId);
+      if (!existingUser) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
+      // Verificar y actualizar email si es diferente
+      if (email !== existingUser.email) {
+        const isEmailTaken = await this.userService.findUserByEmail(email);
+        if (isEmailTaken) {
+          return this.httpResponse.BadRequest(res, [
+            {
+              property: "email",
+              errors: [`El email '${email}' ya está registrado`],
+            },
+          ]);
+        }
+      }
+
+      const data = await this.userService.updateEmail(existingUser, email);
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(
+        res,
+        "El email ha sido actualizado correctamente"
+      );
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async updatePassword(req: Request, res: Response) {
+    const userEmail = req.user.email;
+    const { oldPassword, password } = req.body;
+    try {
+      const existingUser = await this.userService.findUserByEmail(userEmail);
+      if (!existingUser) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
+
+      const isMatchOldPassword = await bcrypt.compare(
+        oldPassword,
+        existingUser.password
+      );
+      if (!isMatchOldPassword) {
+        return this.httpResponse.BadRequest(
+          res,
+          "La contraseña actual proporcionada no coincide con la de éste usuario, intenta otra vez"
+        );
+      }
+
+      const data = await this.userService.updatePassword(
+        existingUser,
+        password
+      );
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(
+        res,
+        "La contraseña ha sido actualizada correctamente"
+      );
+    } catch (e) {
+      console.log(e);
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async updateAdvancedUser(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { name, lastName, role, password, username, email, ...userData } =
+      req.body;
+    try {
+      const existingUser = await this.userService.findUserById(userId);
+      if (!existingUser) {
+        return this.httpResponse.NotFound(res, "Usuario no encontrado");
+      }
+      const data = await this.userService.updateAdvancedUser(
+        existingUser,
+        userData
+      );
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al actualizar");
+      }
+      return this.httpResponse.Ok(res, data);
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async deleteAccount(req: Request, res: Response) {
+    const userId = req.user.id;
+    try {
+      const user = await this.userService.findUserById(userId);
+
+      //Verificar si existe el usuario
+      if (!user) {
+        return this.httpResponse.BadRequest(res, "Usuario no encontrado");
+      }
+
+      const data = await this.userService.deleteUser(userId);
+      if (!data) {
+        return this.httpResponse.NotFound(res, "Error al eliminar");
+      }
+      return this.httpResponse.Ok(res, "Usuario eliminado");
+    } catch (e) {
+      console.log(e);
+      return this.httpResponse.Error(res, e);
+    }
+  }
 }

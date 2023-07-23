@@ -1,3 +1,6 @@
+//email válido
+export const EmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 //requiere al menos una letra minúscula, una letra mayúscula y un dígito.
 export const PasswordValidationRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/;
