@@ -4,6 +4,10 @@ import { OrderType } from "../../shared/types/shared.types";
 import { BrandEntity } from "../entities/brand.entity";
 import { BrandDTO } from "../dto/brand.dto";
 import { ProductService } from "../../product/services/product.service";
+import { AppDataSource } from "../../config/data.source";
+import { ProductEntity } from "../../product/entities/product.entity";
+import { ImageEntity } from "../../image/entities/image.entity";
+import { StockEntity } from "../../stock/entities/stock.entity";
 
 export class BrandService extends BaseService<BrandEntity> {
   constructor(private productService: ProductService = new ProductService()) {
@@ -68,24 +72,104 @@ export class BrandService extends BaseService<BrandEntity> {
     return (await this.execRepository).update({ id }, body);
   }
 
-  async deleteBrand(id: string): Promise<BrandEntity | null> {
-    // Obtener la marca existente
-    const existingBrand = await this.findBrandByIdForDelete(id);
-    if (!existingBrand) {
+  async deleteBrand(brand: BrandEntity): Promise<BrandEntity | null> {
+    // Crear un query runner
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      //Eliminar los productos relacionados
+      const products = brand.products;
+      for (const product of products) {
+        const existingProduct = await queryRunner.manager.findOne(
+          ProductEntity,
+          {
+            where: { id: product.id, state: true },
+            relations: [
+              "category",
+              "images",
+              "stock",
+              "sizes",
+              "colors",
+              "brand",
+              "cartItems",
+              "favorites",
+            ],
+          }
+        );
+        if (existingProduct) {
+          // Eliminar las imágenes relacionadas
+          const images = existingProduct.images;
+          for (const image of images) {
+            const existingImage = await queryRunner.manager.findOneBy(
+              ImageEntity,
+              {
+                id: image.id,
+              }
+            );
+            if (existingImage) {
+              existingImage.state = false;
+              await queryRunner.manager.save(existingImage);
+            }
+          }
+
+          // Eliminar el stock relacionado
+          const stock = existingProduct.stock;
+          if (stock) {
+            const existingStock = await queryRunner.manager.findOneBy(
+              StockEntity,
+              {
+                id: stock.id,
+              }
+            );
+            if (existingStock) {
+              existingStock.state = false;
+              await queryRunner.manager.save(existingStock);
+            }
+          }
+
+          // Eliminar los items del carrito relacionados al producto
+          const cartItems = existingProduct.cartItems;
+          if (cartItems) {
+            for (const cartItem of cartItems) {
+              await queryRunner.manager.remove(cartItem);
+            }
+          }
+
+          // Eliminar los favoritos relacionados al producto
+          const favorites = existingProduct.favorites;
+          if (favorites) {
+            for (const favorite of favorites) {
+              await queryRunner.manager.remove(favorite);
+            }
+          }
+
+          // Actualizar el estado del producto
+          existingProduct.state = false;
+          existingProduct.available = false;
+
+          //Guardar
+          await queryRunner.manager.save(existingProduct);
+        }
+      }
+
+      // Actualizar el estado de la categoría
+      brand.state = false;
+
+      const updateResult = await queryRunner.manager.save(brand);
+
+      // Commit de la transacción
+      await queryRunner.commitTransaction();
+
+      return updateResult;
+    } catch (error) {
+      // Rollback de la transacción en caso de error
+      await queryRunner.rollbackTransaction();
       return null;
+    } finally {
+      // Liberar el query runner
+      await queryRunner.release();
     }
-
-    // Eliminar los productos relacionados
-    const products = existingBrand.products;
-    for (const product of products) {
-      await this.productService.deleteProductAndRelatedEntities(product.id);
-    }
-
-    // Actualizar el estado de la marca
-    existingBrand.state = false;
-
-    // Guardar los cambios en la base de datos
-    const updateResult = (await this.execRepository).save(existingBrand);
-    return updateResult;
   }
 }
