@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { BrandService } from "../services/brand.service";
 import { OrderType } from "../../shared/types/shared.types";
-import { DeleteResult, UpdateResult } from "typeorm";
+import { UpdateResult } from "typeorm";
 
 export class BrandController {
   constructor(
@@ -72,7 +72,7 @@ export class BrandController {
 
   async createBrand(req: Request, res: Response) {
     const brandData = req.body;
-
+    brandData.name = brandData.name.toLowerCase().trim();
     try {
       const data = await this.brandService.createBrand(brandData);
       return this.httpResponse.Ok(res, data);

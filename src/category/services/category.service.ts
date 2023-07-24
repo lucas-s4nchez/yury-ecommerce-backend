@@ -1,16 +1,15 @@
-import { DeleteResult, UpdateResult } from "typeorm";
+import { UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { CategoryDTO } from "../dto/category.dto";
 import { CategoryEntity } from "../entities/category.entity";
 import { OrderType } from "../../shared/types/shared.types";
-import { ProductService } from "../../product/services/product.service";
 import { AppDataSource } from "../../config/data.source";
 import { ProductEntity } from "../../product/entities/product.entity";
 import { ImageEntity } from "../../image/entities/image.entity";
 import { StockEntity } from "../../stock/entities/stock.entity";
 
 export class CategoryService extends BaseService<CategoryEntity> {
-  constructor(private productService: ProductService = new ProductService()) {
+  constructor() {
     super(CategoryEntity);
   }
 

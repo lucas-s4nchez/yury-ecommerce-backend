@@ -10,9 +10,10 @@ export class BrandMiddleware extends SharedMiddleware {
 
   brandValidator(req: Request, res: Response, next: NextFunction) {
     const { name } = req.body;
+
     const validProduct = new BrandDTO();
 
-    validProduct.name = name;
+    validProduct.name = name.toLowerCase().trim();
 
     validate(validProduct).then((err) => {
       if (err.length > 0) {
@@ -31,9 +32,10 @@ export class BrandMiddleware extends SharedMiddleware {
 
   updateBrandValidator(req: Request, res: Response, next: NextFunction) {
     const { name } = req.body;
+
     const validBrand = new UpdateBrandDTO();
 
-    validBrand.name = name;
+    validBrand.name = name.toLowerCase().trim();
 
     validate(validBrand).then((err) => {
       if (err.length > 0) {

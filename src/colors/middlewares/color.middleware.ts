@@ -12,8 +12,8 @@ export class ColorMiddleware extends SharedMiddleware {
     const { name, hexCode } = req.body;
     const validSize = new ColorDTO();
 
-    validSize.name = name;
-    validSize.hexCode = hexCode;
+    validSize.name = name.toLowerCase().trim();
+    validSize.hexCode = hexCode.toLowerCase().trim();
 
     validate(validSize).then((err) => {
       if (err.length > 0) {
@@ -33,8 +33,8 @@ export class ColorMiddleware extends SharedMiddleware {
     const { name, hexCode } = req.body;
     const validSize = new UpdateColorDTO();
 
-    validSize.name = name;
-    validSize.hexCode = hexCode;
+    validSize.name = name.toLowerCase().trim();
+    validSize.hexCode = hexCode.toLowerCase().trim();
 
     validate(validSize).then((err) => {
       if (err.length > 0) {

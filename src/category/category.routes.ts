@@ -12,10 +12,8 @@ export class CategoryRoute extends BaseRouter<
 
   //Definir las rutas de categoria
   routes(): void {
-    this.router.get(
-      "/categoryList",
-      // this.middleware.checkJsonWebToken,
-      (req, res) => this.controller.categoryList(req, res)
+    this.router.get("/categoryList", (req, res) =>
+      this.controller.categoryList(req, res)
     );
     this.router.get(
       "/categories",
@@ -38,7 +36,7 @@ export class CategoryRoute extends BaseRouter<
       "/categories/:id",
       this.middleware.checkJsonWebToken,
       this.middleware.checkAdminRole.bind(this.middleware),
-      this.middleware.categoryValidator.bind(this.middleware),
+      this.middleware.updateCategoryValidator.bind(this.middleware),
       (req, res) => this.controller.updateCategory(req, res)
     );
     this.router.delete(

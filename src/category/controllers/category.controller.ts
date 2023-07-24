@@ -71,9 +71,7 @@ export class CategoryController {
   async createCategory(req: Request, res: Response) {
     const categoryData = req.body;
 
-    if (categoryData.name) {
-      categoryData.name = categoryData.name.toLowerCase();
-    }
+    categoryData.name = categoryData.name.toLowerCase().trim();
 
     try {
       const data = await this.categoryService.createCategory(categoryData);
@@ -85,6 +83,9 @@ export class CategoryController {
   async updateCategory(req: Request, res: Response) {
     const { id } = req.params;
     const categoryData = req.body;
+
+    categoryData.name = categoryData.name.toLowerCase().trim();
+
     try {
       const existingCategory = await this.categoryService.findCategoryById(id);
       if (!existingCategory) {
@@ -114,7 +115,10 @@ export class CategoryController {
       if (!data.affected) {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(
+        res,
+        "La categoria ha sido actualizada correctamente"
+      );
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }

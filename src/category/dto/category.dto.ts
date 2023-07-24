@@ -13,3 +13,13 @@ export class CategoryDTO extends BaseDTO {
   @IsCategoryUnique()
   name!: string;
 }
+
+export class UpdateCategoryDTO extends BaseDTO {
+  @IsNotEmpty({ message: "El nombre es requerido" })
+  @IsString({ message: "Tipo de dato incorrecto" })
+  @Matches(LettersWithSpacesRegex, {
+    message: "Solo se permiten letras (sin acentos o caracteres especiales)",
+  })
+  @Length(3, 50, { message: "El nombre debe tener entre 3 y 50 caracteres" })
+  name!: string;
+}

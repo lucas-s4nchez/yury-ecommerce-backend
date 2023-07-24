@@ -1,16 +1,15 @@
-import { DeleteResult, UpdateResult } from "typeorm";
+import { UpdateResult } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { OrderType } from "../../shared/types/shared.types";
 import { BrandEntity } from "../entities/brand.entity";
 import { BrandDTO } from "../dto/brand.dto";
-import { ProductService } from "../../product/services/product.service";
 import { AppDataSource } from "../../config/data.source";
 import { ProductEntity } from "../../product/entities/product.entity";
 import { ImageEntity } from "../../image/entities/image.entity";
 import { StockEntity } from "../../stock/entities/stock.entity";
 
 export class BrandService extends BaseService<BrandEntity> {
-  constructor(private productService: ProductService = new ProductService()) {
+  constructor() {
     super(BrandEntity);
   }
 
@@ -64,7 +63,6 @@ export class BrandService extends BaseService<BrandEntity> {
   }
 
   async createBrand(body: BrandDTO): Promise<BrandEntity> {
-    body.name = body.name.toLowerCase().trim();
     return (await this.execRepository).save(body);
   }
 
@@ -154,7 +152,7 @@ export class BrandService extends BaseService<BrandEntity> {
         }
       }
 
-      // Actualizar el estado de la categoría
+      // Actualizar el estado de la marca
       brand.state = false;
 
       const updateResult = await queryRunner.manager.save(brand);

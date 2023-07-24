@@ -89,6 +89,7 @@ export class ColorController {
     const colorData = req.body;
     colorData.name = colorData.name.toLowerCase().trim();
     colorData.hexCode = colorData.hexCode.toUpperCase().trim();
+
     try {
       const existingColor = await this.colorService.findColorById(id);
       if (!existingColor) {
@@ -116,7 +117,10 @@ export class ColorController {
       if (!data.affected) {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(
+        res,
+        "El color ha sido actualizado correctamente"
+      );
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);
@@ -126,11 +130,11 @@ export class ColorController {
   async deleteColor(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const existingColor = await this.colorService.findColorById(id);
+      const existingColor = await this.colorService.findColorByIdForDelete(id);
       if (!existingColor) {
         return this.httpResponse.NotFound(res, "Color no encontrado");
       }
-      const deletedColor = await this.colorService.deleteColor(id);
+      const deletedColor = await this.colorService.deleteColor(existingColor);
       if (!deletedColor) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
