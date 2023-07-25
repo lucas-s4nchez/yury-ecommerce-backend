@@ -2,6 +2,7 @@ import { IsNotEmpty, IsNumber, Min } from "class-validator";
 import { BaseDTO } from "../../config/base.dto";
 import { ProductEntity } from "../../product/entities/product.entity";
 import { IsProductUnique } from "../validators/product-unique.validator";
+import { IsProductExisting } from "../../cart/validators/existing-product.validator";
 
 export class StockDTO extends BaseDTO {
   @IsNotEmpty({ message: "La cantidad es requerida" })
@@ -13,6 +14,7 @@ export class StockDTO extends BaseDTO {
   quantity!: number;
 
   @IsNotEmpty({ message: "El producto es requerido" })
+  @IsProductExisting()
   @IsProductUnique()
   product!: ProductEntity;
 }

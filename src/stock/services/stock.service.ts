@@ -55,32 +55,4 @@ export class StockService extends BaseService<StockEntity> {
   async updateStock(id: string, body: UpdateStockDTO): Promise<UpdateResult> {
     return (await this.execRepository).update({ id }, body);
   }
-
-  async deleteStock(id: string): Promise<StockEntity | null> {
-    // Obtener el talle existente
-    const existingStock = await this.findStockById(id);
-    if (!existingStock) {
-      return null;
-    }
-
-    // Actualizar el estado del talle
-    existingStock.state = false;
-
-    // Guardar los cambios en la base de datos
-    const updateResult = (await this.execRepository).save(existingStock);
-    return updateResult;
-  }
-
-  async deleteStockWithQueryRunner(
-    stockId: string,
-    queryRunner: QueryRunner
-  ): Promise<void> {
-    const stock = await queryRunner.manager.findOneBy(StockEntity, {
-      id: stockId,
-    });
-    if (stock) {
-      stock.state = false;
-      await queryRunner.manager.save(stock);
-    }
-  }
 }

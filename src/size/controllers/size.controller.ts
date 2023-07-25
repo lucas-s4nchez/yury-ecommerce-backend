@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { OrderType } from "../../shared/types/shared.types";
-import { DeleteResult, UpdateResult } from "typeorm";
+import { UpdateResult } from "typeorm";
 import { SizeService } from "../services/size.service";
 
 export class SizeController {
@@ -112,7 +112,10 @@ export class SizeController {
       if (!data.affected) {
         return this.httpResponse.NotFound(res, "Error al actualizar");
       }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(
+        res,
+        "El talle ha sido actualizado correctamente"
+      );
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);
@@ -122,11 +125,11 @@ export class SizeController {
   async deleteSize(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const existingSize = await this.sizeService.findSizeById(id);
+      const existingSize = await this.sizeService.findSizeByIdForDelete(id);
       if (!existingSize) {
         return this.httpResponse.NotFound(res, "Talle no encontrado");
       }
-      const deletedSize = await this.sizeService.deleteSize(id);
+      const deletedSize = await this.sizeService.deleteSize(existingSize);
       if (!deletedSize) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }
