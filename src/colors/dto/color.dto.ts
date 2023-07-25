@@ -1,4 +1,4 @@
-import { IsNotEmpty, Matches } from "class-validator";
+import { IsNotEmpty, Length, Matches } from "class-validator";
 import { BaseDTO } from "../../config/base.dto";
 import {
   LettersWithSpacesRegex,
@@ -11,6 +11,7 @@ export class ColorDTO extends BaseDTO {
   @Matches(LettersWithSpacesRegex, {
     message: "Solo se permiten letras (sin acentos o caracteres especiales)",
   })
+  @Length(3, 50, { message: "El color debe tener entre 3 y 50 caracteres" })
   @IsColorUnique()
   name!: string;
 
@@ -24,6 +25,7 @@ export class UpdateColorDTO extends BaseDTO {
   @Matches(LettersWithSpacesRegex, {
     message: "Solo se permiten letras (sin acentos o caracteres especiales)",
   })
+  @Length(3, 50, { message: "El color debe tener entre 3 y 50 caracteres" })
   name!: string;
 
   @IsNotEmpty({ message: "El código hexadecimal es requerido" })

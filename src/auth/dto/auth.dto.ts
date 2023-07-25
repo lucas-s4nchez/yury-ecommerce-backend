@@ -37,7 +37,7 @@ export class RegisterUserDTO extends BaseDTO {
 
   @IsNotEmpty({ message: "El email es requerido" })
   @IsEmail({}, { message: "El email debe tener un formato válido" })
-  @MaxLength(100, { message: "El email no puede exceder los 100 caracteres" })
+  @MaxLength(250, { message: "El email no puede exceder los 250 caracteres" })
   @IsEmailUnique()
   email!: string;
 

@@ -20,8 +20,8 @@ export class AuthMiddleware extends SharedMiddleware {
     const { email, password } = req.body;
     const validUser = new LoginUserDTO();
 
-    validUser.email = email;
-    validUser.password = password;
+    validUser.email = email.trim();
+    validUser.password = password.trim();
 
     validate(validUser).then((err) => {
       if (err.length > 0) {
@@ -42,10 +42,10 @@ export class AuthMiddleware extends SharedMiddleware {
     const { name, lastName, email, password, role } = req.body;
     const validUser = new RegisterUserDTO();
 
-    validUser.name = name;
-    validUser.lastName = lastName;
-    validUser.email = email;
-    validUser.password = password;
+    validUser.name = name.trim();
+    validUser.lastName = lastName.trim();
+    validUser.email = email.trim();
+    validUser.password = password.trim();
     validUser.role = role;
 
     validate(validUser).then((err) => {
@@ -67,7 +67,7 @@ export class AuthMiddleware extends SharedMiddleware {
     const { name } = req.body;
     const validName = new UpdateNameDTO();
 
-    validName.name = name;
+    validName.name = name.trim();
 
     validate(validName).then((err) => {
       if (err.length > 0) {
@@ -88,7 +88,7 @@ export class AuthMiddleware extends SharedMiddleware {
     const { lastName } = req.body;
     const validLastName = new UpdateLastNameDTO();
 
-    validLastName.lastName = lastName;
+    validLastName.lastName = lastName.trim();
 
     validate(validLastName).then((err) => {
       if (err.length > 0) {
@@ -109,7 +109,7 @@ export class AuthMiddleware extends SharedMiddleware {
     const { email } = req.body;
     const validEmail = new UpdateEmailDTO();
 
-    validEmail.email = email;
+    validEmail.email = email.trim();
 
     validate(validEmail).then((err) => {
       if (err.length > 0) {
@@ -130,8 +130,8 @@ export class AuthMiddleware extends SharedMiddleware {
     const { oldPassword, password } = req.body;
     const validPassword = new UpdatePasswordDTO();
 
-    validPassword.oldPassword = oldPassword;
-    validPassword.password = password;
+    validPassword.oldPassword = oldPassword.trim();
+    validPassword.password = password.trim();
 
     validate(validPassword).then((err) => {
       if (err.length > 0) {
@@ -152,11 +152,11 @@ export class AuthMiddleware extends SharedMiddleware {
     const { province, city, address, dni, phone } = req.body;
     const validUser = new UpdateAdvancedUserDTO();
 
-    validUser.province = province;
-    validUser.city = city;
-    validUser.address = address;
-    validUser.dni = dni;
-    validUser.phone = phone;
+    validUser.province = province.trim();
+    validUser.city = city.trim();
+    validUser.address = address.trim();
+    validUser.dni = dni.trim();
+    validUser.phone = phone.trim();
 
     validate(validUser).then((err) => {
       if (err.length > 0) {

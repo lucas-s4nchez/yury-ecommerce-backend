@@ -12,7 +12,9 @@ export class AuthController {
   ) {}
 
   async login(req: Request, res: Response) {
-    const { email, password } = req.body;
+    const email = req.body.email.trim();
+    const password = req.body.password.trim();
+
     try {
       const user = await this.authService.validateUser(email, password);
 
@@ -41,6 +43,11 @@ export class AuthController {
 
   async register(req: Request, res: Response) {
     const { province, city, address, dni, phone, ...userData } = req.body;
+    userData.name = userData.name.trim();
+    userData.lastName = userData.lastName.trim();
+    userData.email = userData.email.trim();
+    userData.password = userData.password.trim();
+
     try {
       const user = await this.userService.createUser(userData);
       if (!user) {
@@ -89,7 +96,7 @@ export class AuthController {
 
   async updateName(req: Request, res: Response) {
     const userId = req.user.id;
-    const { name } = req.body;
+    const name = req.body.name.trim();
     try {
       const existingUser = await this.userService.findUserById(userId);
       if (!existingUser) {
@@ -111,7 +118,8 @@ export class AuthController {
 
   async updateLastName(req: Request, res: Response) {
     const userId = req.user.id;
-    const { lastName } = req.body;
+    const lastName = req.body.lastName.trim();
+
     try {
       const existingUser = await this.userService.findUserById(userId);
       if (!existingUser) {
@@ -136,7 +144,8 @@ export class AuthController {
 
   async updateEmail(req: Request, res: Response) {
     const userId = req.user.id;
-    const { email } = req.body;
+    const email = req.body.email.trim();
+
     try {
       const existingUser = await this.userService.findUserById(userId);
       if (!existingUser) {
@@ -170,7 +179,9 @@ export class AuthController {
 
   async updatePassword(req: Request, res: Response) {
     const userEmail = req.user.email;
-    const { oldPassword, password } = req.body;
+    const oldPassword = req.body.oldPassword.trim();
+    const password = req.body.password.trim();
+
     try {
       const existingUser = await this.userService.findUserByEmail(userEmail);
       if (!existingUser) {
@@ -209,6 +220,12 @@ export class AuthController {
     const userId = req.user.id;
     const { name, lastName, role, password, username, email, ...userData } =
       req.body;
+    userData.province = userData.province.trim();
+    userData.city = userData.city.trim();
+    userData.address = userData.address.trim();
+    userData.dni = userData.dni.trim();
+    userData.phone = userData.phone.trim();
+
     try {
       const existingUser = await this.userService.findUserById(userId);
       if (!existingUser) {
