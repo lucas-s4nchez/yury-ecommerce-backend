@@ -119,7 +119,7 @@ export class ImageController {
       }
 
       //Eliminar de base de datos
-      const deletedImage = await this.imageService.deleteImage(imageId);
+      const deletedImage = await this.imageService.deleteImage(existingImage);
       if (!deletedImage) {
         return this.httpResponse.NotFound(res, "Error al eliminar");
       }

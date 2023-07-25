@@ -107,13 +107,6 @@ export class CartItemService extends BaseService<CartItemEntity> {
     return (await this.execRepository).remove(cartItem);
   }
 
-  async deleteCartItemWithQueryRunner(
-    cartItem: CartItemEntity,
-    queryRunner: QueryRunner
-  ): Promise<void> {
-    await queryRunner.manager.remove(cartItem);
-  }
-
   async deleteAllCartItems(cartId: string): Promise<void> {
     const cartItems = await this.findAllCartItems(cartId);
     await Promise.all(
