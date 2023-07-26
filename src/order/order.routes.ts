@@ -9,11 +9,21 @@ export class OrderRoute extends BaseRouter<OrderController, OrderMiddleware> {
 
   //Definir las rutas de order
   routes(): void {
-    this.router.get("/orders", (req, res) =>
-      this.controller.getOrders(req, res)
+    this.router.get(
+      "/orders",
+      this.middleware.checkJsonWebToken,
+      this.middleware.checkAdminRole.bind(this.middleware),
+      (req, res) => this.controller.getAllOrders(req, res)
     );
-    this.router.get("/orders/:id", (req, res) =>
-      this.controller.getOrderById(req, res)
+    this.router.get(
+      "/orders/myOrders",
+      this.middleware.checkJsonWebToken,
+      (req, res) => this.controller.getOrdersByUserId(req, res)
+    );
+    this.router.get(
+      "/orders/:id",
+      this.middleware.checkJsonWebToken,
+      (req, res) => this.controller.getOrderById(req, res)
     );
     this.router.post("/orders", this.middleware.checkJsonWebToken, (req, res) =>
       this.controller.createOrder(req, res)

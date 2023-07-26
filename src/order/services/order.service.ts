@@ -5,18 +5,53 @@ import { AppDataSource } from "../../config/data.source";
 import { CartEntity } from "../../cart/entities/cart.entity";
 import { OrderItemEntity } from "../entities/order-item.entity";
 import { StockEntity } from "../../stock/entities/stock.entity";
+import { OrderType } from "../../shared/types/shared.types";
 
 export class OrderService extends BaseService<OrderEntity> {
   constructor() {
     super(OrderEntity);
   }
 
-  async findAllOrders(): Promise<[OrderEntity[], number]> {
-    return (await this.execRepository)
+  async findAllOrders(
+    page: number,
+    limit: number,
+    order: OrderType
+  ): Promise<[OrderEntity[], number, number]> {
+    const skipCount = (page - 1) * limit;
+    const [orders, count] = await (await this.execRepository)
       .createQueryBuilder("orders")
       .leftJoinAndSelect("orders.user", "user")
       .leftJoinAndSelect("orders.orderItems", "orderItems")
+      .orderBy("brands.name", order)
+      .skip(skipCount)
+      .take(limit)
       .getManyAndCount();
+
+    const totalPages = Math.ceil(count / limit);
+
+    return [orders, count, totalPages];
+  }
+
+  async findOrdersByUserId(
+    userId: string,
+    page: number,
+    limit: number,
+    order: OrderType
+  ): Promise<[OrderEntity[], number, number]> {
+    const skipCount = (page - 1) * limit;
+    const [orders, count] = await (await this.execRepository)
+      .createQueryBuilder("orders")
+      .leftJoinAndSelect("orders.user", "user")
+      .leftJoinAndSelect("orders.orderItems", "orderItems")
+      .orderBy("brands.name", order)
+      .skip(skipCount)
+      .take(limit)
+      .where("user.id  :userId", { userId })
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(count / limit);
+
+    return [orders, count, totalPages];
   }
 
   async findOrderById(id: string): Promise<OrderEntity | null> {
