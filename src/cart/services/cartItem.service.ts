@@ -2,6 +2,8 @@ import { QueryRunner } from "typeorm";
 import { BaseService } from "../../config/base.service";
 import { CartItemEntity } from "../entities/cartItem.entity";
 import { CartItemDTO } from "../dto/cartItem.dto";
+import { CartEntity } from "../entities/cart.entity";
+import { AppDataSource } from "../../config/data.source";
 
 export class CartItemService extends BaseService<CartItemEntity> {
   constructor() {
@@ -95,22 +97,141 @@ export class CartItemService extends BaseService<CartItemEntity> {
       .getMany();
   }
 
-  async createCartItem(body: CartItemDTO): Promise<CartItemEntity> {
-    return await (await this.execRepository).save(body);
+  async createCartItem(
+    body: CartItemDTO,
+    cartId: string
+  ): Promise<CartItemEntity | null> {
+    // Crear un query runner
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      //Crear el cartItem
+      const cartItem = new CartItemEntity();
+      Object.assign(cartItem, body);
+
+      const savedCartItem = await queryRunner.manager.save(cartItem);
+
+      //Buscar el carrito para actualizarlo
+      const cart = await queryRunner.manager.findOne(CartEntity, {
+        where: { id: cartId },
+        relations: [
+          "cartItems",
+          "cartItems.product",
+          "cartItems.product.brand",
+          "cartItems.product.stock",
+          "cartItems.product.images",
+          "cartItems.size",
+          "user",
+        ],
+      });
+
+      if (cart) {
+        // Guardar el carrito actualizado en la base de datos
+        await queryRunner.manager.save(cart);
+      }
+
+      // Commit de la transacción
+      await queryRunner.commitTransaction();
+
+      return savedCartItem;
+    } catch (error) {
+      // Rollback de la transacción en caso de error
+      await queryRunner.rollbackTransaction();
+      return null;
+    } finally {
+      // Liberar el query runner
+      await queryRunner.release();
+    }
   }
 
-  async updateCartItem(cartItem: CartItemEntity): Promise<CartItemEntity> {
-    return (await this.execRepository).save(cartItem);
+  async updateCartItem(
+    cartItem: CartItemEntity,
+    cartId: string
+  ): Promise<CartItemEntity | null> {
+    // Crear un query runner
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      //guardar el cartItem
+      const savedCartItem = await queryRunner.manager.save(cartItem);
+
+      //Buscar el carrito para actualizarlo
+      const cart = await queryRunner.manager.findOne(CartEntity, {
+        where: { id: cartId },
+        relations: [
+          "cartItems",
+          "cartItems.product",
+          "cartItems.product.brand",
+          "cartItems.product.stock",
+          "cartItems.product.images",
+          "cartItems.size",
+          "user",
+        ],
+      });
+
+      if (cart) {
+        // Guardar el carrito actualizado en la base de datos
+        await queryRunner.manager.save(cart);
+      }
+
+      // Commit de la transacción
+      await queryRunner.commitTransaction();
+
+      return savedCartItem;
+    } catch (error) {
+      // Rollback de la transacción en caso de error
+      await queryRunner.rollbackTransaction();
+      return null;
+    } finally {
+      // Liberar el query runner
+      await queryRunner.release();
+    }
   }
 
-  async deleteCartItem(cartItem: CartItemEntity): Promise<CartItemEntity> {
-    return (await this.execRepository).remove(cartItem);
-  }
+  async deleteCartItem(
+    cartItem: CartItemEntity,
+    cartId: string
+  ): Promise<CartItemEntity | null> {
+    // Crear un query runner
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      //eliminar el cartItem
+      const savedCartItem = await queryRunner.manager.remove(cartItem);
 
-  async deleteAllCartItems(cartId: string): Promise<void> {
-    const cartItems = await this.findAllCartItems(cartId);
-    await Promise.all(
-      cartItems.map((cartItem) => this.deleteCartItem(cartItem))
-    );
+      //Buscar el carrito para actualizarlo
+      const cart = await queryRunner.manager.findOne(CartEntity, {
+        where: { id: cartId },
+        relations: [
+          "cartItems",
+          "cartItems.product",
+          "cartItems.product.brand",
+          "cartItems.product.stock",
+          "cartItems.product.images",
+          "cartItems.size",
+          "user",
+        ],
+      });
+
+      if (cart) {
+        // Guardar el carrito actualizado en la base de datos
+        await queryRunner.manager.save(cart);
+      }
+
+      // Commit de la transacción
+      await queryRunner.commitTransaction();
+
+      return savedCartItem;
+    } catch (error) {
+      // Rollback de la transacción en caso de error
+      await queryRunner.rollbackTransaction();
+      return null;
+    } finally {
+      // Liberar el query runner
+      await queryRunner.release();
+    }
   }
 }

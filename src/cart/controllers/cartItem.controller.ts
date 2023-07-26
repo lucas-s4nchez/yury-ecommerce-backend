@@ -49,8 +49,18 @@ export class CartItemController {
 
   async createCartItem(req: Request, res: Response) {
     const cartItemData = req.body;
+    const cartId = req.cart.id;
 
     try {
+      // Verificar si existe el carrito
+      const existingCart = await this.cartService.findCartById(cartId);
+      if (!existingCart) {
+        return this.httpResponse.NotFound(
+          res,
+          "No existe este carrito de compras"
+        );
+      }
+
       // Verificar si existe el stock del producto
       const productStock = await this.stockService.findStockByProduct(
         cartItemData.product
@@ -100,14 +110,28 @@ export class CartItemController {
         //Si existe sumar la cantidad
         existingCartItem.quantity += cartItemData.quantity;
         const data = await this.cartItemService.updateCartItem(
-          existingCartItem
+          existingCartItem,
+          cartId
         );
-        await this.cartService.updateCartInfo(cartItemData.cart);
+        if (!data) {
+          return this.httpResponse.BadRequest(
+            res,
+            "Error al agregar producto al carrito"
+          );
+        }
         return this.httpResponse.Ok(res, data);
       } else {
         // Si no existe, crear un nuevo cartItem
-        const data = await this.cartItemService.createCartItem(cartItemData);
-        await this.cartService.updateCartInfo(cartItemData.cart);
+        const data = await this.cartItemService.createCartItem(
+          cartItemData,
+          cartId
+        );
+        if (!data) {
+          return this.httpResponse.BadRequest(
+            res,
+            "Error al agregar producto al carrito"
+          );
+        }
         return this.httpResponse.Ok(res, data);
       }
     } catch (e) {
@@ -118,15 +142,23 @@ export class CartItemController {
 
   async addCartItemUnit(req: Request, res: Response) {
     const { id } = req.params;
-    const cartId = req.user.cart.id;
+    const cartId = req.cart.id;
 
     try {
+      // Verificar si existe el carrito
+      const existingCart = await this.cartService.findCartById(cartId);
+      if (!existingCart) {
+        return this.httpResponse.NotFound(
+          res,
+          "No existe este carrito de compras"
+        );
+      }
+
+      //Verificar si existe el cartItem
       const existingCartItem = await this.cartItemService.findCartItemById(
         id,
         cartId
       );
-
-      //Verificar si existe el cartItem
       if (!existingCartItem) {
         return this.httpResponse.NotFound(
           res,
@@ -158,10 +190,16 @@ export class CartItemController {
       }
 
       existingCartItem.quantity += 1;
-      await this.cartItemService.updateCartItem(existingCartItem);
-
-      // Actualizar el cart relacionado
-      await this.cartService.updateCartInfo(cartId);
+      const data = await this.cartItemService.updateCartItem(
+        existingCartItem,
+        cartId
+      );
+      if (!data) {
+        return this.httpResponse.BadRequest(
+          res,
+          "Error al agregar producto al carrito"
+        );
+      }
 
       return this.httpResponse.Ok(
         res,
@@ -175,30 +213,46 @@ export class CartItemController {
 
   async subtractCartItemUnit(req: Request, res: Response) {
     const { id } = req.params;
-    const cartId = req.user.cart.id;
+    const cartId = req.cart.id;
     try {
+      // Verificar si existe el carrito
+      const existingCart = await this.cartService.findCartById(cartId);
+      if (!existingCart) {
+        return this.httpResponse.NotFound(
+          res,
+          "No existe este carrito de compras"
+        );
+      }
+      // Verificar si existe el cartItem en el carrito
       const existingCartItem = await this.cartItemService.findCartItemById(
         id,
         cartId
       );
-
       if (!existingCartItem) {
         return this.httpResponse.NotFound(
           res,
           "No existe este producto en el carrito"
         );
       }
+
       if (existingCartItem.quantity <= 1) {
-        return this.httpResponse.NotFound(
+        return this.httpResponse.BadRequest(
           res,
           "No puedes quitar mas unidades de este producto"
         );
       }
       existingCartItem.quantity -= 1;
-      await this.cartItemService.updateCartItem(existingCartItem);
+      const data = await this.cartItemService.updateCartItem(
+        existingCartItem,
+        cartId
+      );
 
-      // Actualizar el cart relacionado
-      await this.cartService.updateCartInfo(cartId);
+      if (!data) {
+        return this.httpResponse.BadRequest(
+          res,
+          "Error al eliminar producto del carrito"
+        );
+      }
 
       return this.httpResponse.Ok(
         res,
@@ -212,9 +266,18 @@ export class CartItemController {
 
   async deleteCartItem(req: Request, res: Response) {
     const { id } = req.params;
-    const cartId = req.user.cart.id;
+    const cartId = req.cart.id;
 
     try {
+      // Verificar si existe el carrito
+      const existingCart = await this.cartService.findCartById(cartId);
+      if (!existingCart) {
+        return this.httpResponse.NotFound(
+          res,
+          "No existe este carrito de compras"
+        );
+      }
+      // Verificar si existe el cartIem
       const existingCartItem = await this.cartItemService.findCartItemById(
         id,
         cartId
@@ -225,37 +288,18 @@ export class CartItemController {
           "No existe este producto en el carrito"
         );
       }
-      await this.cartItemService.deleteCartItem(existingCartItem);
-      // Actualizar el cart relacionado
-      await this.cartService.updateCartInfo(cartId);
-
-      return this.httpResponse.Ok(res, "Producto eliminado del carrito");
-    } catch (e) {
-      console.log(e);
-      return this.httpResponse.Error(res, e);
-    }
-  }
-
-  async deleteAllCartItems(req: Request, res: Response) {
-    const cartId = req.user.cart.id;
-
-    try {
-      const existingCart = await this.cartService.findCartById(cartId);
-      if (!existingCart?.cartItems.length) {
-        return this.httpResponse.NotFound(
+      const data = await this.cartItemService.deleteCartItem(
+        existingCartItem,
+        cartId
+      );
+      if (!data) {
+        return this.httpResponse.BadRequest(
           res,
-          "No hay productos en el carrito"
+          "Error al eliminar producto del carrito"
         );
       }
-      //eliminar todos los items del carrito
-      await this.cartItemService.deleteAllCartItems(cartId);
-      // Actualizar el cart relacionado
-      await this.cartService.updateCartInfo(cartId);
 
-      return this.httpResponse.Ok(
-        res,
-        "Todos los productos del carrito han sido eliminados"
-      );
+      return this.httpResponse.Ok(res, "Producto eliminado del carrito");
     } catch (e) {
       console.log(e);
       return this.httpResponse.Error(res, e);

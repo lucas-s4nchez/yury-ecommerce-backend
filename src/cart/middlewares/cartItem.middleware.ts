@@ -9,7 +9,7 @@ export class CartItemMiddleware extends SharedMiddleware {
   }
 
   async cartItemValidator(req: Request, res: Response, next: NextFunction) {
-    req.body.cart = req.user.cart.id; // insertar el id del carrito al req.body
+    req.body.cart = req.cart.id; // insertar el id del carrito al req.body
     const { quantity, product, size, cart } = req.body;
     const validCartItem = new CartItemDTO();
 

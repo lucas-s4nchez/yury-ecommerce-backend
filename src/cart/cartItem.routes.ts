@@ -45,11 +45,5 @@ export class CartItemRoute extends BaseRouter<
       this.middleware.checkJsonWebToken,
       (req, res) => this.controller.deleteCartItem(req, res)
     );
-
-    this.router.delete(
-      "/cart/items",
-      this.middleware.checkJsonWebToken,
-      (req, res) => this.controller.deleteAllCartItems(req, res)
-    );
   }
 }
