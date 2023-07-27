@@ -4,6 +4,8 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  Length,
+  MaxLength,
   Min,
   ValidateNested,
 } from "class-validator";
@@ -21,10 +23,16 @@ import { IsValidBrand } from "../validators/valid-brand.validator";
 
 export class ProductDTO extends BaseDTO {
   @IsNotEmpty({ message: "El nombre es requerido" })
+  @MaxLength(255, {
+    message: "El nombre puede tener como máximo 255 caracteres",
+  })
   @IsProductUnique()
   name!: string;
 
   @IsNotEmpty({ message: "La descripción es requerida" })
+  @MaxLength(255, {
+    message: "La descripción puede tener como máximo 255 caracteres",
+  })
   description!: string;
 
   @IsNotEmpty({ message: "El precio es requerido" })

@@ -113,9 +113,14 @@ export class ProductController {
 
   async createProduct(req: Request, res: Response) {
     const { available, state, ...productData } = req.body;
+    productData.name = productData.name.toLowerCase().trim();
+    productData.description = productData.description.trim();
 
     try {
       const data = await this.productService.createProduct(productData);
+      if (!data) {
+        return this.httpResponse.BadRequest(res, "Error al crear el producto");
+      }
 
       return this.httpResponse.Ok(res, "Producto creado correctamente");
     } catch (e) {
@@ -177,6 +182,9 @@ export class ProductController {
   async updateProduct(req: Request, res: Response) {
     const { id } = req.params;
     const { available, state, ...productData } = req.body;
+    productData.name = productData.name.toLowerCase().trim();
+    productData.description = productData.description.trim();
+
     try {
       const existingProduct = await this.productService.findProductById(id);
       if (!existingProduct) {

@@ -13,8 +13,8 @@ export class ProductMiddleware extends SharedMiddleware {
       req.body;
     const validProduct = new ProductDTO();
 
-    validProduct.name = name;
-    validProduct.description = description;
+    validProduct.name = name.toLowerCase().trim();
+    validProduct.description = description.trim();
     validProduct.price = price;
     validProduct.category = category;
     validProduct.brand = brand;
