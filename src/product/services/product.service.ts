@@ -9,6 +9,7 @@ import { AppDataSource } from "../../config/data.source";
 import { ImageEntity } from "../../image/entities/image.entity";
 import { StockEntity } from "../../stock/entities/stock.entity";
 import { CartItemEntity } from "../../cart/entities/cartItem.entity";
+import { GenderType } from "../types/Gender";
 
 export class ProductService extends BaseService<ProductEntity> {
   constructor() {
@@ -66,6 +67,96 @@ export class ProductService extends BaseService<ProductEntity> {
       .skip(skipCount)
       .take(limit)
       .where({ state: true, available: true })
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(count / limit);
+
+    return [products, count, totalPages];
+  }
+
+  async findProductsByParamsAndPaginate(
+    page: number,
+    limit: number,
+    order: OrderType,
+    searchParams: {
+      name?: string;
+      category?: string;
+      gender?: GenderType;
+      minPrice?: number;
+      maxPrice?: number;
+      color?: string;
+      brand?: string;
+      size?: number;
+    }
+  ): Promise<[ProductEntity[], number, number]> {
+    const skipCount = (page - 1) * limit;
+    const queryBuilder = (await this.execRepository)
+      .createQueryBuilder("products")
+      .leftJoinAndSelect("products.category", "category")
+      .leftJoinAndSelect("products.images", "images", "images.state = :state", {
+        state: true,
+      })
+      .leftJoinAndSelect("products.stock", "stock")
+      .leftJoinAndSelect("products.sizes", "sizes")
+      .leftJoinAndSelect("products.colors", "colors")
+      .leftJoinAndSelect("products.brand", "brand")
+      .orderBy("products.name", order)
+      .skip(skipCount)
+      .take(limit)
+      .where("products.state = :state", { state: true })
+      .andWhere("products.available = :available", { available: true });
+
+    if (searchParams.name) {
+      queryBuilder.andWhere("products.name LIKE :name", {
+        name: `%${searchParams.name}%`,
+      });
+    }
+
+    if (searchParams.category) {
+      queryBuilder.andWhere("category.name = :category", {
+        category: searchParams.category,
+      });
+    }
+
+    if (searchParams.gender) {
+      queryBuilder.andWhere("products.gender = :gender", {
+        gender: searchParams.gender,
+      });
+    }
+
+    if (searchParams.minPrice !== undefined) {
+      queryBuilder.andWhere("products.price >= :minPrice", {
+        minPrice: searchParams.minPrice,
+      });
+    }
+
+    if (searchParams.maxPrice !== undefined) {
+      queryBuilder.andWhere("products.price <= :maxPrice", {
+        maxPrice: searchParams.maxPrice,
+      });
+    }
+
+    if (searchParams.color) {
+      queryBuilder.andWhere("colors.name = :color", {
+        color: searchParams.color,
+      });
+    }
+
+    if (searchParams.brand) {
+      queryBuilder.andWhere("brand.name = :brand", {
+        brand: searchParams.brand,
+      });
+    }
+
+    if (searchParams.size) {
+      queryBuilder.andWhere("sizes.number = :size", {
+        size: searchParams.size,
+      });
+    }
+    const [products, count] = await queryBuilder
+      .orderBy("products.name", order)
+      .skip(skipCount)
+      .take(limit)
       .getManyAndCount();
 
     const totalPages = Math.ceil(count / limit);

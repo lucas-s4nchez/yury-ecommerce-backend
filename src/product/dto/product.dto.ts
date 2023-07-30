@@ -1,6 +1,7 @@
 import {
   ArrayNotEmpty,
   IsBoolean,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -20,6 +21,7 @@ import { IsValidSize } from "../validators/valid-size.validator";
 import { IsValidColor } from "../validators/valid-color.validator";
 import { IsValidCategory } from "../validators/valid-category.validator";
 import { IsValidBrand } from "../validators/valid-brand.validator";
+import { GenderType } from "../types/Gender";
 
 export class ProductDTO extends BaseDTO {
   @IsNotEmpty({ message: "El nombre es requerido" })
@@ -70,6 +72,10 @@ export class ProductDTO extends BaseDTO {
   @ArrayNotEmpty({ message: "Debe seleccionar al menos un color" })
   @IsValidColor()
   colors!: ColorEntity[];
+
+  @IsNotEmpty({ message: "El género es requerido" })
+  @IsEnum(GenderType, { message: "El género no es válido" })
+  gender!: GenderType;
 }
 
 export class UpdateProductDTO extends BaseDTO {
@@ -114,6 +120,10 @@ export class UpdateProductDTO extends BaseDTO {
   @ArrayNotEmpty({ message: "Debe seleccionar al menos un color" })
   @IsValidColor()
   colors!: ColorEntity[];
+
+  @IsNotEmpty({ message: "El género es requerido" })
+  @IsEnum(GenderType, { message: "El género no es válido" })
+  gender!: GenderType;
 }
 export class AvailableProductDTO extends BaseDTO {
   @IsBoolean({ message: "El campo 'available' debe ser un booleano" })

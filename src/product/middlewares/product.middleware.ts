@@ -9,7 +9,7 @@ export class ProductMiddleware extends SharedMiddleware {
   }
 
   productValidator(req: Request, res: Response, next: NextFunction) {
-    const { name, description, price, category, brand, sizes, colors } =
+    const { name, description, price, category, brand, sizes, colors, gender } =
       req.body;
     const validProduct = new ProductDTO();
 
@@ -20,6 +20,7 @@ export class ProductMiddleware extends SharedMiddleware {
     validProduct.brand = brand;
     validProduct.colors = colors;
     validProduct.sizes = sizes;
+    validProduct.gender = gender;
 
     validate(validProduct).then((err) => {
       if (err.length > 0) {
@@ -46,17 +47,19 @@ export class ProductMiddleware extends SharedMiddleware {
       sizes,
       colors,
       featured,
+      gender,
     } = req.body;
     const validProduct = new UpdateProductDTO();
 
-    validProduct.name = name;
-    validProduct.description = description;
+    validProduct.name = name.toLowerCase().trim();
+    validProduct.description = description.trim();
     validProduct.price = price;
     validProduct.featured = featured;
     validProduct.category = category;
     validProduct.brand = brand;
     validProduct.colors = colors;
     validProduct.sizes = sizes;
+    validProduct.gender = gender;
 
     validate(validProduct).then((err) => {
       if (err.length > 0) {
