@@ -30,6 +30,9 @@ export class ProductRoute extends BaseRouter<
     this.router.get("/products/:id", (req, res) =>
       this.controller.getAvailableProductById(req, res)
     );
+    this.router.get("/searchProducts", (req, res) =>
+      this.controller.searchProducts(req, res)
+    );
     this.router.post(
       "/products",
       this.middleware.checkJsonWebToken,

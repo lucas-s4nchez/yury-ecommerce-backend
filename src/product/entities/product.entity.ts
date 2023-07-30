@@ -18,6 +18,7 @@ import { ColorEntity } from "../../colors/entities/color.entity";
 import { CartItemEntity } from "../../cart/entities/cartItem.entity";
 import { ImageEntity } from "../../image/entities/image.entity";
 import { FavoriteEntity } from "../../favorite/entities/favorite.entity";
+import { GenderType } from "../types/Gender";
 
 @Entity({ name: "product" })
 export class ProductEntity extends BaseEntity {
@@ -81,6 +82,13 @@ export class ProductEntity extends BaseEntity {
     },
   })
   colors!: ColorEntity[];
+
+  @Column({
+    type: "enum",
+    enum: GenderType,
+    nullable: false,
+  })
+  gender!: GenderType;
 
   @OneToMany(() => CartItemEntity, (cartItem) => cartItem.product)
   cartItems!: CartItemEntity[];

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { HttpResponse } from "../../shared/response/http.response";
 import { ProductService } from "../services/product.service";
 import { OrderType } from "../../shared/types/shared.types";
+import { GenderType } from "../types/Gender";
 
 export class ProductController {
   constructor(
@@ -83,6 +84,64 @@ export class ProductController {
         pageNumber,
         limitNumber,
         order
+      );
+
+      if (data[0].length === 0) {
+        return this.httpResponse.NotFound(res, "No hay productos");
+      }
+      const [products, count, totalPages] = data;
+      return this.httpResponse.Ok(res, { products, count, totalPages });
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async searchProducts(req: Request, res: Response) {
+    try {
+      let {
+        page = 1,
+        limit = 8,
+        order = OrderType.ASC as any,
+        name,
+        category,
+        gender,
+        minPrice,
+        maxPrice,
+        color,
+        brand,
+        size,
+      } = req.query;
+      let pageNumber = parseInt(page as string, 10);
+      let limitNumber = parseInt(limit as string, 10);
+
+      // Validar si los valores son numéricos y mayores a 0
+      if (isNaN(pageNumber) || pageNumber <= 0) {
+        pageNumber = 1; // Valor predeterminado si no es un número válido
+      }
+      if (isNaN(limitNumber) || limitNumber <= 0) {
+        limitNumber = 8; // Valor predeterminado si no es un número válido
+      }
+
+      // Validar el valor de order
+      if (!(order in OrderType)) {
+        order = OrderType.ASC; // Valor predeterminado si no es válido
+      }
+      const data = await this.productService.findProductsByParamsAndPaginate(
+        pageNumber,
+        limitNumber,
+        order,
+        {
+          name: name !== undefined ? (name as string) : undefined,
+          category: category !== undefined ? (category as string) : undefined,
+          gender: gender !== undefined ? (gender as GenderType) : undefined,
+          minPrice:
+            minPrice !== undefined ? parseFloat(minPrice as string) : undefined,
+          maxPrice:
+            maxPrice !== undefined ? parseFloat(maxPrice as string) : undefined,
+          color: color !== undefined ? (color as string) : undefined,
+          brand: brand !== undefined ? (brand as string) : undefined,
+          size: size !== undefined ? parseInt(size as string, 10) : undefined,
+        }
       );
 
       if (data[0].length === 0) {
