@@ -74,6 +74,35 @@ export class ProductService extends BaseService<ProductEntity> {
     return [products, count, totalPages];
   }
 
+  async findFeaturedProductsAndPaginate(
+    page: number,
+    limit: number,
+    order: OrderType
+  ): Promise<[ProductEntity[], number, number]> {
+    const skipCount = (page - 1) * limit;
+    const [products, count] = await (
+      await this.execRepository
+    )
+      .createQueryBuilder("products")
+      .leftJoinAndSelect("products.category", "category")
+      .leftJoinAndSelect("products.images", "images", "images.state = :state", {
+        state: true,
+      })
+      .leftJoinAndSelect("products.stock", "stock")
+      .leftJoinAndSelect("products.sizes", "sizes")
+      .leftJoinAndSelect("products.colors", "colors")
+      .leftJoinAndSelect("products.brand", "brand")
+      .orderBy("products.name", order)
+      .skip(skipCount)
+      .take(limit)
+      .where({ state: true, available: true, featured: true })
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(count / limit);
+
+    return [products, count, totalPages];
+  }
+
   async findProductsByParamsAndPaginate(
     page: number,
     limit: number,
