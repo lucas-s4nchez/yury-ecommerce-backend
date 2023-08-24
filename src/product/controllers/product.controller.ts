@@ -139,6 +139,7 @@ export class ProductController {
         order = OrderType.ASC as any,
         name,
         category,
+        featured,
         gender,
         minPrice,
         maxPrice,
@@ -168,6 +169,8 @@ export class ProductController {
         {
           name: name !== undefined ? (name as string) : undefined,
           category: category !== undefined ? (category as string) : undefined,
+          featured:
+            featured !== undefined ? Boolean(featured as string) : undefined,
           gender: gender !== undefined ? (gender as GenderType) : undefined,
           minPrice:
             minPrice !== undefined ? parseFloat(minPrice as string) : undefined,
@@ -179,9 +182,6 @@ export class ProductController {
         }
       );
 
-      if (data[0].length === 0) {
-        return this.httpResponse.NotFound(res, "No hay productos");
-      }
       const [products, count, totalPages] = data;
       return this.httpResponse.Ok(res, { products, count, totalPages });
     } catch (e) {

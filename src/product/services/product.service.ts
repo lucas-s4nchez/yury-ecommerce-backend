@@ -110,6 +110,7 @@ export class ProductService extends BaseService<ProductEntity> {
     searchParams: {
       name?: string;
       category?: string;
+      featured?: boolean;
       gender?: GenderType;
       minPrice?: number;
       maxPrice?: number;
@@ -144,6 +145,12 @@ export class ProductService extends BaseService<ProductEntity> {
     if (searchParams.category) {
       queryBuilder.andWhere("category.name = :category", {
         category: searchParams.category,
+      });
+    }
+
+    if (searchParams.featured) {
+      queryBuilder.andWhere("products.featured = :featured", {
+        featured: true,
       });
     }
 
