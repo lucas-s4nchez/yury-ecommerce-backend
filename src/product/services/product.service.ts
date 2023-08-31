@@ -130,7 +130,7 @@ export class ProductService extends BaseService<ProductEntity> {
       .leftJoinAndSelect("products.sizes", "sizes")
       .leftJoinAndSelect("products.colors", "colors")
       .leftJoinAndSelect("products.brand", "brand")
-      .orderBy("products.name", order)
+      .orderBy("products.price", order)
       .skip(skipCount)
       .take(limit)
       .where("products.state = :state", { state: true })
@@ -160,13 +160,21 @@ export class ProductService extends BaseService<ProductEntity> {
       });
     }
 
-    if (searchParams.minPrice !== undefined) {
+    if (
+      searchParams.minPrice !== undefined &&
+      !isNaN(searchParams.minPrice) &&
+      searchParams.minPrice > 0
+    ) {
       queryBuilder.andWhere("products.price >= :minPrice", {
         minPrice: searchParams.minPrice,
       });
     }
 
-    if (searchParams.maxPrice !== undefined) {
+    if (
+      searchParams.maxPrice !== undefined &&
+      !isNaN(searchParams.maxPrice) &&
+      searchParams.maxPrice > 0
+    ) {
       queryBuilder.andWhere("products.price <= :maxPrice", {
         maxPrice: searchParams.maxPrice,
       });
@@ -190,7 +198,7 @@ export class ProductService extends BaseService<ProductEntity> {
       });
     }
     const [products, count] = await queryBuilder
-      .orderBy("products.name", order)
+      .orderBy("products.price", order)
       .skip(skipCount)
       .take(limit)
       .getManyAndCount();
