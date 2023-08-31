@@ -74,6 +74,35 @@ export class ProductService extends BaseService<ProductEntity> {
     return [products, count, totalPages];
   }
 
+  async findFeaturedProductsAndPaginate(
+    page: number,
+    limit: number,
+    order: OrderType
+  ): Promise<[ProductEntity[], number, number]> {
+    const skipCount = (page - 1) * limit;
+    const [products, count] = await (
+      await this.execRepository
+    )
+      .createQueryBuilder("products")
+      .leftJoinAndSelect("products.category", "category")
+      .leftJoinAndSelect("products.images", "images", "images.state = :state", {
+        state: true,
+      })
+      .leftJoinAndSelect("products.stock", "stock")
+      .leftJoinAndSelect("products.sizes", "sizes")
+      .leftJoinAndSelect("products.colors", "colors")
+      .leftJoinAndSelect("products.brand", "brand")
+      .orderBy("products.name", order)
+      .skip(skipCount)
+      .take(limit)
+      .where({ state: true, available: true, featured: true })
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(count / limit);
+
+    return [products, count, totalPages];
+  }
+
   async findProductsByParamsAndPaginate(
     page: number,
     limit: number,
@@ -81,6 +110,7 @@ export class ProductService extends BaseService<ProductEntity> {
     searchParams: {
       name?: string;
       category?: string;
+      featured?: boolean;
       gender?: GenderType;
       minPrice?: number;
       maxPrice?: number;
@@ -100,7 +130,7 @@ export class ProductService extends BaseService<ProductEntity> {
       .leftJoinAndSelect("products.sizes", "sizes")
       .leftJoinAndSelect("products.colors", "colors")
       .leftJoinAndSelect("products.brand", "brand")
-      .orderBy("products.name", order)
+      .orderBy("products.price", order)
       .skip(skipCount)
       .take(limit)
       .where("products.state = :state", { state: true })
@@ -118,19 +148,33 @@ export class ProductService extends BaseService<ProductEntity> {
       });
     }
 
+    if (searchParams.featured) {
+      queryBuilder.andWhere("products.featured = :featured", {
+        featured: true,
+      });
+    }
+
     if (searchParams.gender) {
       queryBuilder.andWhere("products.gender = :gender", {
         gender: searchParams.gender,
       });
     }
 
-    if (searchParams.minPrice !== undefined) {
+    if (
+      searchParams.minPrice !== undefined &&
+      !isNaN(searchParams.minPrice) &&
+      searchParams.minPrice > 0
+    ) {
       queryBuilder.andWhere("products.price >= :minPrice", {
         minPrice: searchParams.minPrice,
       });
     }
 
-    if (searchParams.maxPrice !== undefined) {
+    if (
+      searchParams.maxPrice !== undefined &&
+      !isNaN(searchParams.maxPrice) &&
+      searchParams.maxPrice > 0
+    ) {
       queryBuilder.andWhere("products.price <= :maxPrice", {
         maxPrice: searchParams.maxPrice,
       });
@@ -154,7 +198,7 @@ export class ProductService extends BaseService<ProductEntity> {
       });
     }
     const [products, count] = await queryBuilder
-      .orderBy("products.name", order)
+      .orderBy("products.price", order)
       .skip(skipCount)
       .take(limit)
       .getManyAndCount();

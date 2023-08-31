@@ -86,9 +86,44 @@ export class ProductController {
         order
       );
 
-      if (data[0].length === 0) {
-        return this.httpResponse.NotFound(res, "No hay productos");
+      // if (data[0].length === 0) {
+      //   return this.httpResponse.NotFound(res, "No hay productos");
+      // }
+      const [products, count, totalPages] = data;
+      return this.httpResponse.Ok(res, { products, count, totalPages });
+    } catch (e) {
+      return this.httpResponse.Error(res, e);
+    }
+  }
+
+  async getFeaturedProducts(req: Request, res: Response) {
+    try {
+      let { page = 1, limit = 8, order = OrderType.ASC as any } = req.query;
+      let pageNumber = parseInt(page as string, 10);
+      let limitNumber = parseInt(limit as string, 10);
+
+      // Validar si los valores son numéricos y mayores a 0
+      if (isNaN(pageNumber) || pageNumber <= 0) {
+        pageNumber = 1; // Valor predeterminado si no es un número válido
       }
+      if (isNaN(limitNumber) || limitNumber <= 0) {
+        limitNumber = 8; // Valor predeterminado si no es un número válido
+      }
+
+      // Validar el valor de order
+      if (!(order in OrderType)) {
+        order = OrderType.ASC; // Valor predeterminado si no es válido
+      }
+
+      const data = await this.productService.findFeaturedProductsAndPaginate(
+        pageNumber,
+        limitNumber,
+        order
+      );
+
+      // if (data[0].length === 0) {
+      //   return this.httpResponse.NotFound(res, "No hay productos");
+      // }
       const [products, count, totalPages] = data;
       return this.httpResponse.Ok(res, { products, count, totalPages });
     } catch (e) {
@@ -104,6 +139,7 @@ export class ProductController {
         order = OrderType.ASC as any,
         name,
         category,
+        featured,
         gender,
         minPrice,
         maxPrice,
@@ -133,6 +169,8 @@ export class ProductController {
         {
           name: name !== undefined ? (name as string) : undefined,
           category: category !== undefined ? (category as string) : undefined,
+          featured:
+            featured !== undefined ? Boolean(featured as string) : undefined,
           gender: gender !== undefined ? (gender as GenderType) : undefined,
           minPrice:
             minPrice !== undefined ? parseFloat(minPrice as string) : undefined,
@@ -144,9 +182,6 @@ export class ProductController {
         }
       );
 
-      if (data[0].length === 0) {
-        return this.httpResponse.NotFound(res, "No hay productos");
-      }
       const [products, count, totalPages] = data;
       return this.httpResponse.Ok(res, { products, count, totalPages });
     } catch (e) {

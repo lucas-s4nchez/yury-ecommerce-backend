@@ -14,10 +14,7 @@ export class ColorController {
     try {
       const data = await this.colorService.findAllColors();
 
-      if (data.length === 0) {
-        return this.httpResponse.NotFound(res, "No hay colores");
-      }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, { colors: data });
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }

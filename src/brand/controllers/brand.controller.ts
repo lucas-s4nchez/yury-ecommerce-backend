@@ -14,10 +14,7 @@ export class BrandController {
     try {
       const data = await this.brandService.findAllBrands();
 
-      if (data.length === 0) {
-        return this.httpResponse.NotFound(res, "No hay marcas");
-      }
-      return this.httpResponse.Ok(res, data);
+      return this.httpResponse.Ok(res, { brands: data });
     } catch (e) {
       return this.httpResponse.Error(res, e);
     }
